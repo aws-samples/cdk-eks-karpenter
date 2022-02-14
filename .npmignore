@@ -21,3 +21,6 @@ dist
 tsconfig.tsbuildinfo
 /.eslintrc.json
 !.jsii
+cdk.out/
+cdk.context.json
+.env

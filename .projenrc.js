@@ -1,18 +1,30 @@
-const { AwsCdkConstructLibrary } = require('projen');
-const project = new AwsCdkConstructLibrary({
+const { awscdk } = require('projen');
+const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Andreas Lindh',
   authorAddress: 'elindh@amazon.com',
-  cdkVersion: '1.95.2',
+  description: 'CDK construct library that allows you install Karpenter in an AWS EKS cluster',
+  cdkVersion: '2.12.0',
   defaultReleaseBranch: 'main',
   name: 'cdk-eks-karpenter',
-  repositoryUrl: 'https://github.com/elindh/cdk-eks-karpenter.git',
-
-  // cdkDependencies: undefined,      /* Which AWS CDK modules (those that start with "@aws-cdk/") does this library require when consumed? */
-  // cdkTestDependencies: undefined,  /* AWS CDK modules required for testing. */
-  // deps: [],                        /* Runtime dependencies of this module. */
-  // description: undefined,          /* The description is just a string that helps people understand the purpose of the package. */
-  // devDeps: [],                     /* Build dependencies for this module. */
-  // packageName: undefined,          /* The "name" in package.json. */
-  // release: undefined,              /* Add release management to this project. */
+  repositoryUrl: 'https://github.com/aws-samples/cdk-eks-karpenter.git',
 });
+
+const common_excludes = [
+  'cdk.out/',
+  'cdk.context.json',
+  '.env',
+];
+project.gitignore.exclude(...common_excludes);
+project.npmignore.exclude(...common_excludes);
+
+project.addTask('test:deploy', {
+  exec: 'npx cdk deploy -a "npx ts-node -P tsconfig.dev.json --prefer-ts-exts test/integ.karpenter.ts"',
+});
+project.addTask('test:destroy', {
+  exec: 'npx cdk destroy -a "npx ts-node -P tsconfig.dev.json --prefer-ts-exts test/integ.karpenter.ts"',
+});
+project.addTask('test:synth', {
+  exec: 'npx cdk synth -a "npx ts-node -P tsconfig.dev.json --prefer-ts-exts test/integ.karpenter.ts"',
+});
+
 project.synth();

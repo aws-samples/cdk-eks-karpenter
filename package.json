@@ -1,8 +1,9 @@
 {
   "name": "cdk-eks-karpenter",
+  "description": "CDK construct library that allows you install Karpenter in an AWS EKS cluster",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elindh/cdk-eks-karpenter.git"
+    "url": "https://github.com/aws-samples/cdk-eks-karpenter.git"
   },
   "scripts": {
     "build": "npx projen build",
@@ -22,6 +23,9 @@
     "pre-compile": "npx projen pre-compile",
     "release": "npx projen release",
     "test": "npx projen test",
+    "test:deploy": "npx projen test:deploy",
+    "test:destroy": "npx projen test:destroy",
+    "test:synth": "npx projen test:synth",
     "test:update": "npx projen test:update",
     "test:watch": "npx projen test:watch",
     "unbump": "npx projen unbump",
@@ -40,17 +44,17 @@
     "@types/node": "^12",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
-    "aws-cdk-lib": "2.1.0",
+    "aws-cdk-lib": "2.12.0",
     "constructs": "10.0.5",
     "eslint": "^8",
     "eslint-import-resolver-node": "^0.3.6",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.4",
-    "jest": "^27.5.0",
+    "jest": "^27.5.1",
     "jest-junit": "^13",
     "jsii": "^1.52.1",
     "jsii-diff": "^1.52.1",
-    "jsii-docgen": "^6.0.7",
+    "jsii-docgen": "^6.0.10",
     "json-schema": "^0.4.0",
     "npm-check-updates": "^12",
     "projen": "^0.52.18",
@@ -59,7 +63,7 @@
     "typescript": "^4.5.5"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.1.0",
+    "aws-cdk-lib": "^2.12.0",
     "constructs": "^10.0.5"
   },
   "keywords": [
