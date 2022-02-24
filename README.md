@@ -22,7 +22,7 @@ const karpenter = new Karpenter(this, 'Karpenter', {
 ```
 
 This will install and configure Karpenter in your cluster. To have Karpenter do something useful, you
-also need to create a [provisioner for AWS](https://karpenter.sh/v0.6.1/aws/provisioning/). You can
+also need to create a [provisioner for AWS](https://karpenter.sh/v0.6.3/aws/provisioning/). You can
 do that from CDK using `addProvisioner()`, similar to the example below:
 
 ```typescript
@@ -88,4 +88,4 @@ npx projen test:destroy
 ### I'm not able to launch spot instances
 
 1. Ensure you have the appropriate linked role available in your account, for more details,
-  see [the karpenter documentation](https://karpenter.sh/v0.6.1/getting-started/#create-the-ec2-spot-service-linked-role)
+  see [the karpenter documentation](https://karpenter.sh/v0.6.3/getting-started/#create-the-ec2-spot-service-linked-role)
