@@ -7,6 +7,11 @@ const project = new awscdk.AwsCdkConstructLibrary({
   defaultReleaseBranch: 'main',
   name: 'cdk-eks-karpenter',
   repositoryUrl: 'https://github.com/aws-samples/cdk-eks-karpenter.git',
+
+  pullRequestTemplateContents: [
+    '---',
+    '*By submitting this pull request, I confirm that my contribution is made under the terms of the Apache-2.0 license*'
+  ]
 });
 
 const common_excludes = [
