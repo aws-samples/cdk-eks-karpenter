@@ -1,17 +1,26 @@
 const { awscdk } = require('projen');
+
+const PROJECT_NAME = 'cdk-eks-karpenter';
+
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Andreas Lindh',
   authorAddress: 'elindh@amazon.com',
   description: 'CDK construct library that allows you install Karpenter in an AWS EKS cluster',
+  keywords: ['eks', 'karpenter'],
   cdkVersion: '2.12.0',
   defaultReleaseBranch: 'main',
-  name: 'cdk-eks-karpenter',
+  name: PROJECT_NAME,
   repositoryUrl: 'https://github.com/aws-samples/cdk-eks-karpenter.git',
 
   pullRequestTemplateContents: [
     '---',
-    '*By submitting this pull request, I confirm that my contribution is made under the terms of the Apache-2.0 license*'
-  ]
+    '*By submitting this pull request, I confirm that my contribution is made under the terms of the Apache-2.0 license*',
+  ],
+
+  publishToPypi: {
+    distName: PROJECT_NAME,
+    module: 'cdk_eks_karpenter',
+  },
 });
 
 const common_excludes = [
