@@ -17,10 +17,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '*By submitting this pull request, I confirm that my contribution is made under the terms of the Apache-2.0 license*',
   ],
 
-  publishToPypi: {
-    distName: PROJECT_NAME,
-    module: 'cdk_eks_karpenter',
-  },
+  // publishToPypi: {
+  //   distName: PROJECT_NAME,
+  //   module: 'cdk_eks_karpenter',
+  // },
 });
 
 const common_excludes = [
