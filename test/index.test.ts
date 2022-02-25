@@ -4,7 +4,7 @@ import { Cluster, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Karpenter } from '../src';
 
 describe('Karpenter installation', () => {
-  it('shoudl install the latest version by default', () => {
+  it('shuold install the latest version by default', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test-stack');
 
