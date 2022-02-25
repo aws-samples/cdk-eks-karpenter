@@ -16,6 +16,13 @@ the service linked role in your account allowing Karpenter to provision EC2 Spot
 In your CDK project, initialize a new Karpenter construct for your EKS cluster, like this:
 
 ```typescript
+const cluster = new Cluster(this, 'testCluster', {
+  vpc: vpc,
+  role: clusterRole,
+  version: KubernetesVersion.V1_21,
+  defaultCapacity: 1
+});
+
 const karpenter = new Karpenter(this, 'Karpenter', {
   cluster: cluster
 });
