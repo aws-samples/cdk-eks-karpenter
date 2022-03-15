@@ -50,7 +50,7 @@ new Karpenter(scope: Construct, id: string, props: KarpenterProps)
 ##### `toString` <a name="toString" id="cdk-eks-karpenter.Karpenter.toString"></a>
 
 ```typescript
-public toString()
+public toString(): string
 ```
 
 Returns a string representation of this construct.
@@ -58,7 +58,7 @@ Returns a string representation of this construct.
 ##### `addProvisioner` <a name="addProvisioner" id="cdk-eks-karpenter.Karpenter.addProvisioner"></a>
 
 ```typescript
-public addProvisioner(id: string, provisionerSpec: {[ key: string ]: any})
+public addProvisioner(id: string, provisionerSpec: {[ key: string ]: any}): void
 ```
 
 addProvisioner adds a provisioner manifest to the cluster.
