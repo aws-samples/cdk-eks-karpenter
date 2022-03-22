@@ -40,6 +40,7 @@ junit.xml
 /dist/version.txt
 !/.github/workflows/release.yml
 !/.mergify.yml
+!/.github/dependabot.yml
 !/.github/pull_request_template.md
 !/test/
 !/tsconfig.dev.json
@@ -53,4 +54,3 @@ tsconfig.json
 cdk.out/
 cdk.context.json
 .env
-!/.github/workflows/upgrade-main.yml

@@ -21,6 +21,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
     distName: PROJECT_NAME,
     module: 'cdk_eks_karpenter',
   },
+
+  dependabot: true,
 });
 
 const common_excludes = [
