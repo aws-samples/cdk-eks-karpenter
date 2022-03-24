@@ -63,7 +63,8 @@ public addProvisioner(id: string, provisionerSpec: {[ key: string ]: any}): void
 
 addProvisioner adds a provisioner manifest to the cluster.
 
-Currently the provisioner spec parameter is relatively free form.
+Currently the provisioner spec
+parameter is relatively free form.
 
 ###### `id`<sup>Required</sup> <a name="id" id="cdk-eks-karpenter.Karpenter.addProvisioner.parameter.id"></a>
 
