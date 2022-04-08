@@ -25,8 +25,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
 
   dependabot: true,
   dependabotOptions: {
-    scheduleInterval: DependabotScheduleInterval.MONTHLY
-  }
+    scheduleInterval: DependabotScheduleInterval.MONTHLY,
+  },
 });
 
 const common_excludes = [
