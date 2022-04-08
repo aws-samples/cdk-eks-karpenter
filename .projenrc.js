@@ -1,4 +1,5 @@
 const { awscdk } = require('projen');
+const { DependabotScheduleInterval } = require('projen/lib/github');
 
 const PROJECT_NAME = 'cdk-eks-karpenter';
 
@@ -23,6 +24,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
 
   dependabot: true,
+  dependabotOptions: {
+    scheduleInterval: DependabotScheduleInterval.MONTHLY
+  }
 });
 
 const common_excludes = [
