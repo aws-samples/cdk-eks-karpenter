@@ -561,10 +561,10 @@
     chalk "^4.1.2"
     semver "^7.3.7"
 
-"@jsii/check-node@1.63.2":
-  version "1.63.2"
-  resolved "https://registry.yarnpkg.com/@jsii/check-node/-/check-node-1.63.2.tgz#009cd1a00023460634ccdf9680f19409810f204a"
-  integrity sha512-vTj8ZCXIUG0ciq0VX+yhWSyCNsFos9TJlQamZPSVATS23cfCav7HGyxA7bydeNML3sfN0MzFQ0OKYyjAMeFw5A==
+"@jsii/check-node@1.69.0":
+  version "1.69.0"
+  resolved "https://registry.yarnpkg.com/@jsii/check-node/-/check-node-1.69.0.tgz#74f4db123f5dd1d4dd3d30cfa54a0a75d8b94d9d"
+  integrity sha512-a+g42wsMM1SB91f+/ZGqtEccaCfJkpfbKYczzLM8tN7P00TGHraTFBqd/G6jndRw4mrR+T+3GaAKlzmNLqYIUg==
   dependencies:
     chalk "^4.1.2"
     semver "^7.3.7"
@@ -576,10 +576,10 @@
   dependencies:
     jsonschema "^1.4.0"
 
-"@jsii/spec@^1.55.1", "@jsii/spec@^1.59.0", "@jsii/spec@^1.63.2":
-  version "1.63.2"
-  resolved "https://registry.yarnpkg.com/@jsii/spec/-/spec-1.63.2.tgz#36cdde3279ba8e1d212bbcba9b4766b1a3aaab95"
-  integrity sha512-zIFZDG/qtQJWa2I7W1cUXExeshr4WSSuMNHWGkJzIn4hFtYv4eQG7cP3gF2ToqAwS2WgsX7fQ7dDrLg0Pzfc2A==
+"@jsii/spec@^1.55.1", "@jsii/spec@^1.59.0", "@jsii/spec@^1.69.0":
+  version "1.69.0"
+  resolved "https://registry.yarnpkg.com/@jsii/spec/-/spec-1.69.0.tgz#aff2db2d930b04fb832a04ecb8f166b1cf21982f"
+  integrity sha512-Dj41jQc6GgbXHyc/IzhmKdrMJSuF7hetRmCkwMvj0/T2WWNAUK/UNNw40QnksfIhB8yooDAoMqGVU/71fbDyaA==
   dependencies:
     ajv "^8.11.0"
 
@@ -3835,12 +3835,12 @@ jsii@1.55.1:
     yargs "^16.2.0"
 
 jsii@^1.55.1:
-  version "1.63.2"
-  resolved "https://registry.yarnpkg.com/jsii/-/jsii-1.63.2.tgz#6042f7d1239f939ef0df28c41e090a3c221ac8f6"
-  integrity sha512-KHnsuTm4ErLiB4JNvPi/TzJuIXeqkMim95Qs9KG5M8tfDd/GHlsotwxNx9qfG2R7DdAWrH0MG+kd1wKIAl+GFw==
+  version "1.69.0"
+  resolved "https://registry.yarnpkg.com/jsii/-/jsii-1.69.0.tgz#f3ec71ea710db8d3a0d677d39c32aa55930a903c"
+  integrity sha512-gusMQ8inlV2/51KsZmZ/H+FeoExrloksgeg8ohvIgF3tvqZKZDh0LvJFGNEeqcJzr+P1OZ3KHVEUI2M0XXicRw==
   dependencies:
-    "@jsii/check-node" "1.63.2"
-    "@jsii/spec" "^1.63.2"
+    "@jsii/check-node" "1.69.0"
+    "@jsii/spec" "^1.69.0"
     case "^1.6.3"
     chalk "^4"
     fast-deep-equal "^3.1.3"
