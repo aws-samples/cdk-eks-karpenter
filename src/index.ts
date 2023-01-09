@@ -110,6 +110,12 @@ export class Karpenter extends Construct {
           ],
           resources: ['*'],
         }),
+        new PolicyStatement({
+          actions: [
+            'iam:PassRole'
+          ],
+          resources: this.nodeRole
+        }),
       ],
     });
 
