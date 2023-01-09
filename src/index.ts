@@ -121,7 +121,7 @@ export class Karpenter extends Construct {
       wait: true,
       chart: 'karpenter',
       release: 'karpenter',
-      repository: 'https://charts.karpenter.sh',
+      repository: 'oci://public.ecr.aws/karpenter',
       namespace: this.namespace,
       version: this.version ?? undefined,
       createNamespace: false,
