@@ -47,7 +47,7 @@ class TestEKSStack extends Stack {
 
     const karpenter = new Karpenter(this, 'Karpenter', {
       cluster: cluster,
-      version: 'v0.23.0' // test the newest version
+      version: 'v0.23.0', // test the newest version
     });
     karpenter.addProvisioner('spot-provisioner', {
       requirements: [{
