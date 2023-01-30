@@ -1,6 +1,9 @@
-import { Aws } from 'aws-cdk-lib';
+import { Aws, Duration } from 'aws-cdk-lib';
 import { Cluster, HelmChart } from 'aws-cdk-lib/aws-eks';
+import { Rule } from 'aws-cdk-lib/aws-events';
+import { SqsQueue } from 'aws-cdk-lib/aws-events-targets';
 import { CfnInstanceProfile, ManagedPolicy, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 
 export interface KarpenterProps {
@@ -85,30 +88,125 @@ export class Karpenter extends Construct {
     });
     serviceAccount.node.addDependency(namespace);
 
+    // diffrent values for diffrent Karpenter versions
+    var iamPolicy = [
+      new PolicyStatement({
+        actions: [
+          'ec2:CreateLaunchTemplate',
+          'ec2:DeleteLaunchTemplate',
+          'ec2:CreateFleet',
+          'ec2:RunInstances',
+          'ec2:CreateTags',
+          'ec2:TerminateInstances',
+          'ec2:DescribeLaunchTemplates',
+          'ec2:DescribeInstances',
+          'ec2:DescribeSecurityGroups',
+          'ec2:DescribeSubnets',
+          'ec2:DescribeInstanceTypes',
+          'ec2:DescribeInstanceTypeOfferings',
+          'ec2:DescribeAvailabilityZones',
+          'ssm:GetParameter',
+        ],
+        resources: ['*'],
+      }),
+      new PolicyStatement({
+        actions: ['iam:PassRole'],
+        resources: [this.nodeRole.roleArn],
+      }),
+    ];
+    var repoUrl = 'https://charts.karpenter.sh';
+    var repoValues: any = {
+      serviceAccount: {
+        create: false,
+        name: serviceAccount.serviceAccountName,
+        annotations: {
+          'eks.amazonaws.com/role-arn': serviceAccount.role.roleArn,
+        },
+      },
+      clusterName: this.cluster.clusterName,
+      clusterEndpoint: this.cluster.clusterEndpoint,
+      aws: {
+        defaultInstanceProfile: instanceProfile.ref,
+      },
+    };
+
+    if (this.version === undefined || this.compareVersion(this.version, 'v0.17.0')
+      || this.version === 'v0.17.0') {
+      repoUrl = 'oci://public.ecr.aws/karpenter/karpenter';
+      if (this.version === undefined || this.compareVersion(this.version, 'v0.19.0') ||
+        this.version==='v0.19.0') {
+
+        // new version need SQS to handle the interruption
+        const karpenterInterruptionQueue = new Queue(this, 'KarpenterInterruptionQueue', {
+          queueName: this.cluster.clusterName,
+          retentionPeriod: Duration.minutes(5),
+        });
+
+        const rules = [
+          // ScheduledChangeRule
+          new Rule(this, 'ScheduledChangeRule', {
+            eventPattern: {
+              source: ['aws.health'],
+              detailType: ['AWS Health Event'],
+            },
+          }),
+          // SpotInterruptionRule
+          new Rule(this, 'SpotInterruptionRule', {
+            eventPattern: {
+              source: ['aws.ec2'],
+              detailType: ['EC2 Spot Instance Interruption Warning'],
+            },
+          }),
+          // RebalanceRule
+          new Rule(this, 'RebalanceRule', {
+            eventPattern: {
+              source: ['aws.ec2'],
+              detailType: ['EC2 Instance Rebalance Recommendation'],
+            },
+          }),
+          // InstanceStateChangeRule
+          new Rule(this, 'InstanceStateChangeRule', {
+            eventPattern: {
+              source: ['aws.ec2'],
+              detailType: ['EC2 Instance State-change Notification'],
+            },
+          }),
+        ];
+
+        for (var rule of rules) {
+          rule.addTarget(new SqsQueue(karpenterInterruptionQueue));
+        }
+        // new version need SQS privilege
+        iamPolicy.push(
+          new PolicyStatement({
+            actions: [
+              'sqs:DeleteMessage',
+              'sqs:GetQueueAttributes',
+              'sqs:GetQueueUrl',
+              'sqs:ReceiveMessage',
+            ],
+            resources: [karpenterInterruptionQueue.queueArn],
+          }),
+        );
+
+        // new version use new Repo values
+        delete repoValues.clusterName;
+        delete repoValues.clusterEndpoint;
+        delete repoValues.aws;
+        repoValues.settings = {
+          aws: {
+            clusterName: this.cluster.clusterName,
+            clusterEndpoint: this.cluster.clusterEndpoint,
+            interruptionQueueName: karpenterInterruptionQueue.queueName,
+            defaultInstanceProfile: instanceProfile.ref,
+          },
+        };
+      }
+    }
+
     new Policy(this, 'ControllerPolicy', {
       roles: [serviceAccount.role],
-      statements: [
-        new PolicyStatement({
-          actions: [
-            'ec2:CreateLaunchTemplate',
-            'ec2:DeleteLaunchTemplate',
-            'ec2:CreateFleet',
-            'ec2:RunInstances',
-            'ec2:CreateTags',
-            'iam:PassRole',
-            'ec2:TerminateInstances',
-            'ec2:DescribeLaunchTemplates',
-            'ec2:DescribeInstances',
-            'ec2:DescribeSecurityGroups',
-            'ec2:DescribeSubnets',
-            'ec2:DescribeInstanceTypes',
-            'ec2:DescribeInstanceTypeOfferings',
-            'ec2:DescribeAvailabilityZones',
-            'ssm:GetParameter',
-          ],
-          resources: ['*'],
-        }),
-      ],
+      statements: iamPolicy,
     });
 
     /**
@@ -121,26 +219,32 @@ export class Karpenter extends Construct {
       wait: true,
       chart: 'karpenter',
       release: 'karpenter',
-      repository: 'https://charts.karpenter.sh',
+      repository: repoUrl,
       namespace: this.namespace,
       version: this.version ?? undefined,
       createNamespace: false,
-      values: {
-        serviceAccount: {
-          create: false,
-          name: serviceAccount.serviceAccountName,
-          annotations: {
-            'eks.amazonaws.com/role-arn': serviceAccount.role.roleArn,
-          },
-        },
-        clusterName: this.cluster.clusterName,
-        clusterEndpoint: this.cluster.clusterEndpoint,
-        aws: {
-          defaultInstanceProfile: instanceProfile.ref,
-        },
-      },
+      values: repoValues,
     });
     this.chart.node.addDependency(namespace);
+  }
+
+  /**
+   * compareVersion compare two Karpenter version, return true if the v1 is later one
+   * parameter is relatively free form.
+   *
+   * @param v1 - first compared version
+   * @param v2 - second compared version
+   */
+  private compareVersion(v1: string, v2:string): boolean {
+
+    const v1Arr = v1.split('.');
+    const v2Arr = v2.split('.');
+
+    for (var i in v1Arr) {
+      if (v2Arr[i] === undefined) {return true;}
+      if (parseInt(v1Arr[i].replace('v', '')) > parseInt(v2Arr[i].replace('v', ''))) {return true;}
+    }
+    return false;
   }
 
   /**

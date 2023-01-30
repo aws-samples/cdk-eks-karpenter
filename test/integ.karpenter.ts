@@ -1,3 +1,4 @@
+import { KubectlV24Layer } from '@aws-cdk/lambda-layer-kubectl-v24';
 import { App, Stack, StackProps } from 'aws-cdk-lib';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, CoreDnsComputeType, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
@@ -25,9 +26,10 @@ class TestEKSStack extends Stack {
     const cluster = new Cluster(this, 'testCluster', {
       vpc: vpc,
       role: clusterRole,
-      version: KubernetesVersion.V1_21,
+      version: KubernetesVersion.V1_24, // OCI HELM repo only supported by new version.
       defaultCapacity: 0,
       coreDnsComputeType: CoreDnsComputeType.FARGATE,
+      kubectlLayer: new KubectlV24Layer(this, 'KubectlLayer'), // new Kubectl lambda layer
     });
     cluster.addFargateProfile('karpenter', {
       selectors: [
@@ -45,6 +47,7 @@ class TestEKSStack extends Stack {
 
     const karpenter = new Karpenter(this, 'Karpenter', {
       cluster: cluster,
+      version: 'v0.23.0' // test the newest version
     });
     karpenter.addProvisioner('spot-provisioner', {
       requirements: [{
