@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { Match, Template } from 'aws-cdk-lib/assertions';
+import { Match, Template, Capture } from 'aws-cdk-lib/assertions';
 import { Cluster, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Karpenter } from '../src';
 
@@ -62,5 +62,74 @@ describe('Karpenter installation', () => {
     t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
       Namespace: 'kar-penter',
     });
+  });
+
+  it('should install from old URL if Karpenter version < v0.17.0', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_23,
+    });
+
+    // Create Karpenter install with non-default version
+    new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+      version: 'v0.6.0',
+    });
+
+    const t = Template.fromStack(stack);
+    t.hasResource('Custom::AWSCDK-EKS-Cluster', {});
+    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
+      Repository: Match.stringLikeRegexp('https://charts.karpenter.sh'),
+    });
+  });
+
+  it('should install from new URL if Karpenter version >= v0.17.0', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_23,
+    });
+
+    // Create Karpenter install with non-default version
+    new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+      version: 'v0.17.0',
+    });
+
+    const t = Template.fromStack(stack);
+    t.hasResource('Custom::AWSCDK-EKS-Cluster', {});
+    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
+      Repository: Match.stringLikeRegexp('oci://public.ecr.aws/karpenter/karpenter'),
+    });
+  });
+
+  it('should use new Values if Karpenter version >= v0.19.0', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_23,
+    });
+
+    // Create Karpenter install with non-default version
+    new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+      version: 'v0.19.1',
+    });
+
+    const t = Template.fromStack(stack);
+    const valueCapture = new Capture();
+    t.hasResource('Custom::AWSCDK-EKS-Cluster', {});
+    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
+      Values: valueCapture,
+    });
+
+    const values = valueCapture.asObject();
+
+    expect(values['Fn::Join'][1]).toContain('\"}},\"settings\":{\"aws\":{\"clusterName\":\"');
+
   });
 });
