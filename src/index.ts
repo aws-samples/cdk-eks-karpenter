@@ -270,7 +270,7 @@ export class Karpenter extends Construct {
   }
 
   /**
-   * addProvisioner adds a provisioner manifest to the cluster. Currently the provisioner spec
+   * addProvisioner adds a node template manifest to the cluster. Currently the provisioner spec
    * parameter is relatively free form.
    *
    * @param id - must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character

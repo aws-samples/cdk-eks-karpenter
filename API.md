@@ -43,6 +43,7 @@ new Karpenter(scope: Construct, id: string, props: KarpenterProps)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#cdk-eks-karpenter.Karpenter.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#cdk-eks-karpenter.Karpenter.addNodeTemplate">addNodeTemplate</a></code> | addProvisioner adds a node template manifest to the cluster. |
 | <code><a href="#cdk-eks-karpenter.Karpenter.addProvisioner">addProvisioner</a></code> | addProvisioner adds a provisioner manifest to the cluster. |
 
 ---
@@ -54,6 +55,33 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
+
+##### `addNodeTemplate` <a name="addNodeTemplate" id="cdk-eks-karpenter.Karpenter.addNodeTemplate"></a>
+
+```typescript
+public addNodeTemplate(id: string, nodeTemplateSpec: {[ key: string ]: any}): void
+```
+
+addProvisioner adds a node template manifest to the cluster.
+
+Currently the provisioner spec
+parameter is relatively free form.
+
+###### `id`<sup>Required</sup> <a name="id" id="cdk-eks-karpenter.Karpenter.addNodeTemplate.parameter.id"></a>
+
+- *Type:* string
+
+must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character.
+
+---
+
+###### `nodeTemplateSpec`<sup>Required</sup> <a name="nodeTemplateSpec" id="cdk-eks-karpenter.Karpenter.addNodeTemplate.parameter.nodeTemplateSpec"></a>
+
+- *Type:* {[ key: string ]: any}
+
+spec of Karpenters Node Template object.
+
+---
 
 ##### `addProvisioner` <a name="addProvisioner" id="cdk-eks-karpenter.Karpenter.addProvisioner"></a>
 
