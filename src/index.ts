@@ -268,4 +268,26 @@ export class Karpenter extends Construct {
     let provisioner = this.cluster.addManifest(id, m);
     provisioner.node.addDependency(this.chart);
   }
+
+  /**
+   * addProvisioner adds a node template manifest to the cluster. Currently the provisioner spec
+   * parameter is relatively free form.
+   *
+   * @param id - must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character
+   * @param nodeTemplateSpec - spec of Karpenters Node Template object.
+   */
+  public addNodeTemplate(id: string, nodeTemplateSpec: Record<string, any>): void {
+    let m = {
+      apiVersion: 'karpenter.k8s.aws/v1alpha1',
+      kind: 'AWSNodeTemplate',
+      metadata: {
+        name: id,
+        namespace: this.namespace,
+      },
+      spec: {},
+    };
+    m.spec = nodeTemplateSpec;
+    let provisioner = this.cluster.addManifest(id, m);
+    provisioner.node.addDependency(this.chart);
+  }
 }

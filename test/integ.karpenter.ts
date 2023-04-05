@@ -49,6 +49,19 @@ class TestEKSStack extends Stack {
       cluster: cluster,
       version: 'v0.23.0', // test the newest version
     });
+
+    karpenter.addNodeTemplate('spot-template', {
+      subnetSelector: {
+        Name: `${this.stackName}/${vpc.node.id}/PrivateSubnet*`,
+      },
+      securityGroupSelector: {
+        'aws:eks:cluster-name': cluster.clusterName,
+      },
+      metadataOptions: {
+        httpTokens: 'optional',
+      },
+    });
+
     karpenter.addProvisioner('spot-provisioner', {
       requirements: [{
         key: 'karpenter.sh/capacity-type',
@@ -60,15 +73,11 @@ class TestEKSStack extends Stack {
           cpu: 20,
         },
       },
-      provider: {
-        subnetSelector: {
-          Name: `${this.stackName}/${vpc.node.id}/PrivateSubnet*`,
-        },
-        securityGroupSelector: {
-          'aws:eks:cluster-name': cluster.clusterName,
-        },
+      providerRef: {
+        name: 'spot-template',
       },
     });
+
   }
 }
 
