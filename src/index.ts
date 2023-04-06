@@ -106,6 +106,8 @@ export class Karpenter extends Construct {
           'ec2:DescribeInstanceTypeOfferings',
           'ec2:DescribeAvailabilityZones',
           'ssm:GetParameter',
+          'pricing:GetProducts',
+          'ec2:DescribeSpotPriceHistory',
         ],
         resources: ['*'],
       }),
