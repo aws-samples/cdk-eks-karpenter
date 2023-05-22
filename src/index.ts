@@ -25,6 +25,11 @@ export interface KarpenterProps {
    * @default - latest
    */
   readonly version?: string;
+
+  /**
+   * Extra values to pass to the Karpenter Helm chart
+   */
+  readonly helmExtraValues?: any;
 }
 
 export class Karpenter extends Construct {
@@ -32,6 +37,7 @@ export class Karpenter extends Construct {
   public readonly namespace: string;
   public readonly version?: string;
   public readonly nodeRole: Role;
+  public readonly helmExtraValues: any;
   private readonly chart: HelmChart;
 
   constructor(scope: Construct, id: string, props: KarpenterProps) {
@@ -40,6 +46,7 @@ export class Karpenter extends Construct {
     this.cluster = props.cluster;
     this.namespace = props.namespace ?? 'karpenter';
     this.version = props.version;
+    this.helmExtraValues = props.helmExtraValues ?? {};
 
     /*
      * We create a node role for Karpenter managed nodes, alongside an instance profile for the EC2
@@ -117,7 +124,9 @@ export class Karpenter extends Construct {
       }),
     ];
     var repoUrl = 'https://charts.karpenter.sh';
-    var repoValues: any = {
+
+    // These are fixed values that we supply to the Helm Chart.
+    var repoValuesFixed: any = {
       serviceAccount: {
         create: false,
         name: serviceAccount.serviceAccountName,
@@ -131,12 +140,15 @@ export class Karpenter extends Construct {
         defaultInstanceProfile: instanceProfile.ref,
       },
     };
+    // We will merge our dyanmic `helmExtraValues` with the fixed values. Where the fixed values
+    // will override the dynamic values.
+    var repoValues = { ...this.helmExtraValues, ...repoValuesFixed };
 
     if (this.version === undefined || this.compareVersion(this.version, 'v0.17.0')
       || this.version === 'v0.17.0') {
       repoUrl = 'oci://public.ecr.aws/karpenter/karpenter';
       if (this.version === undefined || this.compareVersion(this.version, 'v0.19.0') ||
-        this.version==='v0.19.0') {
+        this.version === 'v0.19.0') {
 
         // new version need SQS to handle the interruption
         const karpenterInterruptionQueue = new Queue(this, 'KarpenterInterruptionQueue', {
