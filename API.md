@@ -142,6 +142,7 @@ Any object.
 | --- | --- | --- |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_eks.Cluster</code> | *No description.* |
+| <code><a href="#cdk-eks-karpenter.Karpenter.property.helmExtraValues">helmExtraValues</a></code> | <code>any</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.namespace">namespace</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.nodeRole">nodeRole</a></code> | <code>aws-cdk-lib.aws_iam.Role</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.version">version</a></code> | <code>string</code> | *No description.* |
@@ -167,6 +168,16 @@ public readonly cluster: Cluster;
 ```
 
 - *Type:* aws-cdk-lib.aws_eks.Cluster
+
+---
+
+##### `helmExtraValues`<sup>Required</sup> <a name="helmExtraValues" id="cdk-eks-karpenter.Karpenter.property.helmExtraValues"></a>
+
+```typescript
+public readonly helmExtraValues: any;
+```
+
+- *Type:* any
 
 ---
 
@@ -218,6 +229,7 @@ const karpenterProps: KarpenterProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_eks.Cluster</code> | The EKS Cluster to attach to. |
+| <code><a href="#cdk-eks-karpenter.KarpenterProps.property.helmExtraValues">helmExtraValues</a></code> | <code>any</code> | Extra values to pass to the Karpenter Helm chart. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.namespace">namespace</a></code> | <code>string</code> | The Kubernetes namespace to install to. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.version">version</a></code> | <code>string</code> | The helm chart version to install. |
 
@@ -232,6 +244,18 @@ public readonly cluster: Cluster;
 - *Type:* aws-cdk-lib.aws_eks.Cluster
 
 The EKS Cluster to attach to.
+
+---
+
+##### `helmExtraValues`<sup>Optional</sup> <a name="helmExtraValues" id="cdk-eks-karpenter.KarpenterProps.property.helmExtraValues"></a>
+
+```typescript
+public readonly helmExtraValues: any;
+```
+
+- *Type:* any
+
+Extra values to pass to the Karpenter Helm chart.
 
 ---
 

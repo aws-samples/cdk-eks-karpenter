@@ -64,6 +64,35 @@ describe('Karpenter installation', () => {
     });
   });
 
+  it('should add extra helm values if provided', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_24,
+    });
+
+    // Create Karpenter install with extra values
+    new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+      namespace: 'kar-penter',
+      helmExtraValues: {
+        'foo.key': 'foo.value',
+      },
+    });
+
+    const t = Template.fromStack(stack);
+    const valueCapture = new Capture();
+    t.hasResource('Custom::AWSCDK-EKS-Cluster', {});
+    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
+      Values: valueCapture,
+      Namespace: 'kar-penter',
+    });
+
+    const values = valueCapture.asObject();
+    expect(values['Fn::Join'][1][0]).toContain('{\"foo.key\":\"foo.value\"');
+  });
+
   it('should install from old URL if Karpenter version < v0.17.0', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test-stack');
@@ -130,6 +159,5 @@ describe('Karpenter installation', () => {
     const values = valueCapture.asObject();
 
     expect(values['Fn::Join'][1]).toContain('\"}},\"settings\":{\"aws\":{\"clusterName\":\"');
-
   });
 });
