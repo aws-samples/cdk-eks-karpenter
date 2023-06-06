@@ -82,7 +82,7 @@ export class Karpenter extends Construct {
      * For the Karpenter controller to be able to talk to the AWS APIs, we need to set up a few
      * resources which will allow the Karpenter controller to use IAM Roles for Service Accounts
      */
-    const namespace = this.cluster.addManifest('namespace', {
+    const namespace = this.cluster.addManifest('karpenter-namespace', {
       apiVersion: 'v1',
       kind: 'Namespace',
       metadata: {
