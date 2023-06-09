@@ -39,6 +39,7 @@ export class Karpenter extends Construct {
   public readonly nodeRole: Role;
   public readonly helmExtraValues: any;
   private readonly chart: HelmChart;
+  private readonly serviceAccount: any;
 
   constructor(scope: Construct, id: string, props: KarpenterProps) {
     super(scope, id);
@@ -90,10 +91,10 @@ export class Karpenter extends Construct {
       },
     });
 
-    const serviceAccount = this.cluster.addServiceAccount('karpenter', {
+    this.serviceAccount = this.cluster.addServiceAccount('karpenter', {
       namespace: this.namespace,
     });
-    serviceAccount.node.addDependency(namespace);
+    this.serviceAccount.node.addDependency(namespace);
 
     // diffrent values for diffrent Karpenter versions
     var iamPolicy = [
@@ -129,9 +130,9 @@ export class Karpenter extends Construct {
     var repoValuesFixed: any = {
       serviceAccount: {
         create: false,
-        name: serviceAccount.serviceAccountName,
+        name: this.serviceAccount.serviceAccountName,
         annotations: {
-          'eks.amazonaws.com/role-arn': serviceAccount.role.roleArn,
+          'eks.amazonaws.com/role-arn': this.serviceAccount.role.roleArn,
         },
       },
       clusterName: this.cluster.clusterName,
@@ -219,7 +220,7 @@ export class Karpenter extends Construct {
     }
 
     new Policy(this, 'ControllerPolicy', {
-      roles: [serviceAccount.role],
+      roles: [this.serviceAccount.role],
       statements: iamPolicy,
     });
 
@@ -284,7 +285,7 @@ export class Karpenter extends Construct {
   }
 
   /**
-   * addProvisioner adds a node template manifest to the cluster. Currently the provisioner spec
+   * addNodeTemplate adds a node template manifest to the cluster. Currently the node template spec
    * parameter is relatively free form.
    *
    * @param id - must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character
@@ -303,5 +304,14 @@ export class Karpenter extends Construct {
     m.spec = nodeTemplateSpec;
     let provisioner = this.cluster.addManifest(id, m);
     provisioner.node.addDependency(this.chart);
+  }
+
+  /**
+   * addManagedPolicyToKarpenterRole adds Managed Policies To Karpenter Role.
+   *
+   * @param managedPolicy - iam managed policy to add to the karpenter role.
+   */
+  public addManagedPolicyToKarpenterRole(managedPolicy: ManagedPolicy ): void {
+    managedPolicy.attachToRole(this.serviceAccount.role);
   }
 }
