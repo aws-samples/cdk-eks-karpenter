@@ -30,6 +30,12 @@ export interface KarpenterProps {
    * Extra values to pass to the Karpenter Helm chart
    */
   readonly helmExtraValues?: any;
+
+  /** 
+   * Custom NodeRole to pass for Karpenter Nodes
+   */
+    readonly nodeRole?: Role;
+
 }
 
 export class Karpenter extends Construct {
@@ -56,15 +62,26 @@ export class Karpenter extends Construct {
      * We will also create a role mapping in the `aws-auth` ConfigMap so that the nodes can authenticate
      * with the Kubernetes API using IAM.
      */
-    this.nodeRole = new Role(this, 'NodeRole', {
-      assumedBy: new ServicePrincipal(`ec2.${Aws.URL_SUFFIX}`),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
-      ],
-    });
+    
+    /* Create Node Role if nodeRole not added as prop
+     * Make sure that the Role that is added does not have an Instance Profile associated to it 
+     * since we will create it here.
+    */
+    if (!props.nodeRole) {
+      this.nodeRole = new Role(this, 'NodeRole', {
+        assumedBy: new ServicePrincipal(`ec2.${Aws.URL_SUFFIX}`),
+        managedPolicies: [
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'),
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'),
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
+        ],
+      });
+    }
+    else {
+      this.nodeRole = props.nodeRole;
+    }
+
 
     const instanceProfile = new CfnInstanceProfile(this, 'InstanceProfile', {
       roles: [this.nodeRole.roleName],

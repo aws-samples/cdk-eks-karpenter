@@ -31,6 +31,7 @@ class TestEKSStack extends Stack {
       coreDnsComputeType: CoreDnsComputeType.FARGATE,
       kubectlLayer: new KubectlV24Layer(this, 'KubectlLayer'), // new Kubectl lambda layer
     });
+    
     cluster.addFargateProfile('karpenter', {
       selectors: [
         {
@@ -45,9 +46,20 @@ class TestEKSStack extends Stack {
       ],
     });
 
+    var ssmPolicy = ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore");
+
+    // Create the role resource
+    const role = new Role(this, "bastion-role", {
+      assumedBy: new ServicePrincipal("ec2.amazonaws.com"),
+    });
+
+    // Add the policy to the role
+    role.addManagedPolicy(ssmPolicy);
+
     const karpenter = new Karpenter(this, 'Karpenter', {
       cluster: cluster,
       version: 'v0.27.0', // test the newest version
+      nodeRole: role
     });
 
     karpenter.addNodeTemplate('spot-template', {
