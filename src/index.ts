@@ -133,6 +133,7 @@ export class Karpenter extends Construct {
           'ssm:GetParameter',
           'pricing:GetProducts',
           'ec2:DescribeSpotPriceHistory',
+          'ec2:DescribeImages'
         ],
         resources: ['*'],
       }),
