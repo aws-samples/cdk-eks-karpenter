@@ -2,7 +2,7 @@ import { Aws, Duration } from 'aws-cdk-lib';
 import { Cluster, HelmChart } from 'aws-cdk-lib/aws-eks';
 import { Rule } from 'aws-cdk-lib/aws-events';
 import { SqsQueue } from 'aws-cdk-lib/aws-events-targets';
-import { CfnInstanceProfile, ManagedPolicy, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { CfnInstanceProfile, ManagedPolicy, IManagedPolicy, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 
@@ -329,7 +329,8 @@ export class Karpenter extends Construct {
    *
    * @param managedPolicy - iam managed policy to add to the karpenter role.
    */
-  public addManagedPolicyToKarpenterRole(managedPolicy: ManagedPolicy ): void {
-    managedPolicy.attachToRole(this.serviceAccount.role);
+  public addManagedPolicyToKarpenterRole(managedPolicy: IManagedPolicy ): void {
+    const KarpenterRole = this.serviceAccount.role
+    KarpenterRole.addManagedPolicy(managedPolicy)
   }
 }
