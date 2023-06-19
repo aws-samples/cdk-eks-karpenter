@@ -330,7 +330,7 @@ export class Karpenter extends Construct {
    *
    * @param managedPolicy - iam managed policy to add to the karpenter role.
    */
-  public addManagedPolicyToKarpenterRole(managedPolicy: IManagedPolicy ): void {
+  public addManagedPolicyToKarpenterRole(managedPolicy: IManagedPolicy): void {
     const KarpenterRole = this.serviceAccount.role;
     KarpenterRole.addManagedPolicy(managedPolicy);
   }

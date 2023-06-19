@@ -49,17 +49,17 @@ class TestEKSStack extends Stack {
     var ssmPolicy = ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore');
 
     // Create the role resource
-    const role = new Role(this, 'bastion-role', {
+    const nodeRole = new Role(this, 'custom-karpenter-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
     });
 
     // Add the policy to the role
-    role.addManagedPolicy(ssmPolicy);
+    nodeRole.addManagedPolicy(ssmPolicy);
 
     const karpenter = new Karpenter(this, 'Karpenter', {
       cluster: cluster,
       version: 'v0.27.0', // test the newest version
-      nodeRole: role,
+      nodeRole: nodeRole,
     });
 
     karpenter.addNodeTemplate('spot-template', {
