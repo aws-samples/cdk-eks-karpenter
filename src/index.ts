@@ -2,7 +2,7 @@ import { Aws, Duration } from 'aws-cdk-lib';
 import { Cluster, HelmChart } from 'aws-cdk-lib/aws-eks';
 import { Rule } from 'aws-cdk-lib/aws-events';
 import { SqsQueue } from 'aws-cdk-lib/aws-events-targets';
-import { CfnInstanceProfile, ManagedPolicy, IManagedPolicy, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { CfnInstanceProfile, IManagedPolicy, ManagedPolicy, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 
@@ -31,10 +31,10 @@ export interface KarpenterProps {
    */
   readonly helmExtraValues?: any;
 
-  /** 
+  /**
    * Custom NodeRole to pass for Karpenter Nodes
    */
-    readonly nodeRole?: Role;
+  readonly nodeRole?: Role;
 
 }
 
@@ -62,9 +62,9 @@ export class Karpenter extends Construct {
      * We will also create a role mapping in the `aws-auth` ConfigMap so that the nodes can authenticate
      * with the Kubernetes API using IAM.
      */
-    
+
     /* Create Node Role if nodeRole not added as prop
-     * Make sure that the Role that is added does not have an Instance Profile associated to it 
+     * Make sure that the Role that is added does not have an Instance Profile associated to it
      * since we will create it here.
     */
     if (!props.nodeRole) {
@@ -77,8 +77,9 @@ export class Karpenter extends Construct {
           ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
         ],
       });
-    }
-    else {
+
+
+    } else {
       this.nodeRole = props.nodeRole;
     }
 
@@ -133,7 +134,7 @@ export class Karpenter extends Construct {
           'ssm:GetParameter',
           'pricing:GetProducts',
           'ec2:DescribeSpotPriceHistory',
-          'ec2:DescribeImages'
+          'ec2:DescribeImages',
         ],
         resources: ['*'],
       }),
@@ -330,7 +331,7 @@ export class Karpenter extends Construct {
    * @param managedPolicy - iam managed policy to add to the karpenter role.
    */
   public addManagedPolicyToKarpenterRole(managedPolicy: IManagedPolicy ): void {
-    const KarpenterRole = this.serviceAccount.role
-    KarpenterRole.addManagedPolicy(managedPolicy)
+    const KarpenterRole = this.serviceAccount.role;
+    KarpenterRole.addManagedPolicy(managedPolicy);
   }
 }
