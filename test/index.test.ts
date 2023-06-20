@@ -5,7 +5,7 @@ import { Role, ServicePrincipal, PolicyDocument, ManagedPolicy } from 'aws-cdk-l
 import { Karpenter } from '../src';
 
 describe('Karpenter installation', () => {
-  it('shuold install the latest version by default', () => {
+  it('should install the latest version by default', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test-stack');
 
@@ -182,9 +182,23 @@ describe('Karpenter installation', () => {
     karpenter.addManagedPolicyToKarpenterRole(ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
 
     const t = Template.fromStack(stack);
+    // Test if we have created the managed policy correctly.
+    t.hasResource('AWS::IAM::ManagedPolicy', {
+      Properties: {
+        PolicyDocument: policyDocument,
+        Description: '',
+        Path: '/',
+      },
+    });
 
-    // This is where we need to write test for this. There are many policies and many roles within this, so hasResource does not work. 
-    // Need help with this. Thanks in Advance!
+    // Test if the managed policy is attached to the Karpenter role
+    t.hasResourceProperties('AWS::IAM::Role', Match.objectLike({
+      ManagedPolicyArns: Match.arrayWith([
+        Match.objectEquals({
+          Ref: Match.stringLikeRegexp('^MyNewManagedPolicy.*$'),
+        }),
+      ]),
+    }));
   });
 
   it('should install from new URL if Karpenter version >= v0.17.0', () => {
