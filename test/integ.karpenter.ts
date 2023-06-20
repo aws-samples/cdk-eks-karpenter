@@ -2,7 +2,7 @@ import { KubectlV24Layer } from '@aws-cdk/lambda-layer-kubectl-v24';
 import { App, Stack, StackProps } from 'aws-cdk-lib';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, CoreDnsComputeType, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
-import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { ManagedPolicy, Role, ServicePrincipal, PolicyDocument } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 import { Karpenter } from '../src';
@@ -31,6 +31,7 @@ class TestEKSStack extends Stack {
       coreDnsComputeType: CoreDnsComputeType.FARGATE,
       kubectlLayer: new KubectlV24Layer(this, 'KubectlLayer'), // new Kubectl lambda layer
     });
+
     cluster.addFargateProfile('karpenter', {
       selectors: [
         {
@@ -45,9 +46,20 @@ class TestEKSStack extends Stack {
       ],
     });
 
+    var ssmPolicy = ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore');
+
+    // Create the role resource
+    const nodeRole = new Role(this, 'custom-karpenter-role', {
+      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
+    });
+
+    // Add the policy to the role
+    nodeRole.addManagedPolicy(ssmPolicy);
+
     const karpenter = new Karpenter(this, 'Karpenter', {
       cluster: cluster,
-      version: 'v0.23.0', // test the newest version
+      version: 'v0.27.0', // test the newest version
+      nodeRole: nodeRole,
     });
 
     karpenter.addNodeTemplate('spot-template', {
@@ -78,6 +90,27 @@ class TestEKSStack extends Stack {
       },
     });
 
+    const policyDocument = {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Sid: 'Statement',
+          Effect: 'Allow',
+          Action: 's3:ListAllMyBuckets',
+          Resource: '*',
+        },
+      ],
+    };
+
+    const customPolicyDocument = PolicyDocument.fromJson(policyDocument);
+
+    const newManagedPolicy = new ManagedPolicy(this, 'MyNewManagedPolicy', {
+      document: customPolicyDocument,
+    });
+
+    karpenter.addManagedPolicyToKarpenterRole(newManagedPolicy);
+
+    karpenter.addManagedPolicyToKarpenterRole(ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
   }
 }
 

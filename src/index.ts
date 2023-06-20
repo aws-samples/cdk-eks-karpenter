@@ -2,7 +2,7 @@ import { Aws, Duration } from 'aws-cdk-lib';
 import { Cluster, HelmChart } from 'aws-cdk-lib/aws-eks';
 import { Rule } from 'aws-cdk-lib/aws-events';
 import { SqsQueue } from 'aws-cdk-lib/aws-events-targets';
-import { CfnInstanceProfile, ManagedPolicy, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { CfnInstanceProfile, IManagedPolicy, ManagedPolicy, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 
@@ -30,6 +30,12 @@ export interface KarpenterProps {
    * Extra values to pass to the Karpenter Helm chart
    */
   readonly helmExtraValues?: any;
+
+  /**
+   * Custom NodeRole to pass for Karpenter Nodes
+   */
+  readonly nodeRole?: Role;
+
 }
 
 export class Karpenter extends Construct {
@@ -39,6 +45,7 @@ export class Karpenter extends Construct {
   public readonly nodeRole: Role;
   public readonly helmExtraValues: any;
   private readonly chart: HelmChart;
+  private readonly serviceAccount: any;
 
   constructor(scope: Construct, id: string, props: KarpenterProps) {
     super(scope, id);
@@ -55,15 +62,27 @@ export class Karpenter extends Construct {
      * We will also create a role mapping in the `aws-auth` ConfigMap so that the nodes can authenticate
      * with the Kubernetes API using IAM.
      */
-    this.nodeRole = new Role(this, 'NodeRole', {
-      assumedBy: new ServicePrincipal(`ec2.${Aws.URL_SUFFIX}`),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
-      ],
-    });
+
+    /* Create Node Role if nodeRole not added as prop
+     * Make sure that the Role that is added does not have an Instance Profile associated to it
+     * since we will create it here.
+    */
+    if (!props.nodeRole) {
+      this.nodeRole = new Role(this, 'NodeRole', {
+        assumedBy: new ServicePrincipal(`ec2.${Aws.URL_SUFFIX}`),
+        managedPolicies: [
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'),
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'),
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
+        ],
+      });
+
+
+    } else {
+      this.nodeRole = props.nodeRole;
+    }
+
 
     const instanceProfile = new CfnInstanceProfile(this, 'InstanceProfile', {
       roles: [this.nodeRole.roleName],
@@ -90,10 +109,10 @@ export class Karpenter extends Construct {
       },
     });
 
-    const serviceAccount = this.cluster.addServiceAccount('karpenter', {
+    this.serviceAccount = this.cluster.addServiceAccount('karpenter', {
       namespace: this.namespace,
     });
-    serviceAccount.node.addDependency(namespace);
+    this.serviceAccount.node.addDependency(namespace);
 
     // diffrent values for diffrent Karpenter versions
     var iamPolicy = [
@@ -130,9 +149,9 @@ export class Karpenter extends Construct {
     var repoValuesFixed: any = {
       serviceAccount: {
         create: false,
-        name: serviceAccount.serviceAccountName,
+        name: this.serviceAccount.serviceAccountName,
         annotations: {
-          'eks.amazonaws.com/role-arn': serviceAccount.role.roleArn,
+          'eks.amazonaws.com/role-arn': this.serviceAccount.role.roleArn,
         },
       },
       clusterName: this.cluster.clusterName,
@@ -220,7 +239,7 @@ export class Karpenter extends Construct {
     }
 
     new Policy(this, 'ControllerPolicy', {
-      roles: [serviceAccount.role],
+      roles: [this.serviceAccount.role],
       statements: iamPolicy,
     });
 
@@ -285,7 +304,7 @@ export class Karpenter extends Construct {
   }
 
   /**
-   * addProvisioner adds a node template manifest to the cluster. Currently the provisioner spec
+   * addNodeTemplate adds a node template manifest to the cluster. Currently the node template spec
    * parameter is relatively free form.
    *
    * @param id - must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character
@@ -304,5 +323,15 @@ export class Karpenter extends Construct {
     m.spec = nodeTemplateSpec;
     let provisioner = this.cluster.addManifest(id, m);
     provisioner.node.addDependency(this.chart);
+  }
+
+  /**
+   * addManagedPolicyToKarpenterRole adds Managed Policies To Karpenter Role.
+   *
+   * @param managedPolicy - iam managed policy to add to the karpenter role.
+   */
+  public addManagedPolicyToKarpenterRole(managedPolicy: IManagedPolicy): void {
+    const KarpenterRole = this.serviceAccount.role;
+    KarpenterRole.addManagedPolicy(managedPolicy);
   }
 }
