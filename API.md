@@ -43,7 +43,8 @@ new Karpenter(scope: Construct, id: string, props: KarpenterProps)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#cdk-eks-karpenter.Karpenter.toString">toString</a></code> | Returns a string representation of this construct. |
-| <code><a href="#cdk-eks-karpenter.Karpenter.addNodeTemplate">addNodeTemplate</a></code> | addProvisioner adds a node template manifest to the cluster. |
+| <code><a href="#cdk-eks-karpenter.Karpenter.addManagedPolicyToKarpenterRole">addManagedPolicyToKarpenterRole</a></code> | addManagedPolicyToKarpenterRole adds Managed Policies To Karpenter Role. |
+| <code><a href="#cdk-eks-karpenter.Karpenter.addNodeTemplate">addNodeTemplate</a></code> | addNodeTemplate adds a node template manifest to the cluster. |
 | <code><a href="#cdk-eks-karpenter.Karpenter.addProvisioner">addProvisioner</a></code> | addProvisioner adds a provisioner manifest to the cluster. |
 
 ---
@@ -56,15 +57,31 @@ public toString(): string
 
 Returns a string representation of this construct.
 
+##### `addManagedPolicyToKarpenterRole` <a name="addManagedPolicyToKarpenterRole" id="cdk-eks-karpenter.Karpenter.addManagedPolicyToKarpenterRole"></a>
+
+```typescript
+public addManagedPolicyToKarpenterRole(managedPolicy: IManagedPolicy): void
+```
+
+addManagedPolicyToKarpenterRole adds Managed Policies To Karpenter Role.
+
+###### `managedPolicy`<sup>Required</sup> <a name="managedPolicy" id="cdk-eks-karpenter.Karpenter.addManagedPolicyToKarpenterRole.parameter.managedPolicy"></a>
+
+- *Type:* aws-cdk-lib.aws_iam.IManagedPolicy
+
+iam managed policy to add to the karpenter role.
+
+---
+
 ##### `addNodeTemplate` <a name="addNodeTemplate" id="cdk-eks-karpenter.Karpenter.addNodeTemplate"></a>
 
 ```typescript
 public addNodeTemplate(id: string, nodeTemplateSpec: {[ key: string ]: any}): void
 ```
 
-addProvisioner adds a node template manifest to the cluster.
+addNodeTemplate adds a node template manifest to the cluster.
 
-Currently the provisioner spec
+Currently the node template spec
 parameter is relatively free form.
 
 ###### `id`<sup>Required</sup> <a name="id" id="cdk-eks-karpenter.Karpenter.addNodeTemplate.parameter.id"></a>
@@ -231,6 +248,7 @@ const karpenterProps: KarpenterProps = { ... }
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_eks.Cluster</code> | The EKS Cluster to attach to. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.helmExtraValues">helmExtraValues</a></code> | <code>any</code> | Extra values to pass to the Karpenter Helm chart. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.namespace">namespace</a></code> | <code>string</code> | The Kubernetes namespace to install to. |
+| <code><a href="#cdk-eks-karpenter.KarpenterProps.property.nodeRole">nodeRole</a></code> | <code>aws-cdk-lib.aws_iam.Role</code> | Custom NodeRole to pass for Karpenter Nodes. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.version">version</a></code> | <code>string</code> | The helm chart version to install. |
 
 ---
@@ -269,6 +287,18 @@ public readonly namespace: string;
 - *Default:* karpenter
 
 The Kubernetes namespace to install to.
+
+---
+
+##### `nodeRole`<sup>Optional</sup> <a name="nodeRole" id="cdk-eks-karpenter.KarpenterProps.property.nodeRole"></a>
+
+```typescript
+public readonly nodeRole: Role;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.Role
+
+Custom NodeRole to pass for Karpenter Nodes.
 
 ---
 
