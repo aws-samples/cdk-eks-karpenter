@@ -8,7 +8,7 @@ on an EKS cluster managed by AWS CDK.
 ### Usage with EC2 Spot Capacity
 
 If you have not used EC2 spot in your AWS account before, follow the instructions
-[here](https://karpenter.sh/v0.6.3/getting-started/#create-the-ec2-spot-service-linked-role) to create
+[here](https://karpenter.sh/v0.31/getting-started/getting-started-with-karpenter/#3-create-a-cluster) to create
 the service linked role in your account allowing Karpenter to provision EC2 Spot Capacity.
 
 ## Using
@@ -29,7 +29,7 @@ const karpenter = new Karpenter(this, 'Karpenter', {
 ```
 
 This will install and configure Karpenter in your cluster. To have Karpenter do something useful, you
-also need to create a [provisioner for AWS](https://karpenter.sh/v0.6.3/aws/provisioning/). You can
+also need to create a [provisioner for AWS](https://karpenter.sh/v0.31/concepts/provisioners/). You can
 do that from CDK using `addProvisioner()`, similar to the example below:
 
 ```typescript
@@ -95,4 +95,4 @@ npx projen test:destroy
 ### I'm not able to launch spot instances
 
 1. Ensure you have the appropriate linked role available in your account, for more details,
-  see [the karpenter documentation](https://karpenter.sh/v0.6.3/getting-started/#create-the-ec2-spot-service-linked-role)
+  see [the karpenter documentation](https://karpenter.sh/v0.31/getting-started/getting-started-with-karpenter/#3-create-a-cluster)
