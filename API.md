@@ -162,6 +162,7 @@ Any object.
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.helmExtraValues">helmExtraValues</a></code> | <code>any</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.namespace">namespace</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.nodeRole">nodeRole</a></code> | <code>aws-cdk-lib.aws_iam.Role</code> | *No description.* |
+| <code><a href="#cdk-eks-karpenter.Karpenter.property.serviceAccountName">serviceAccountName</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.version">version</a></code> | <code>string</code> | *No description.* |
 
 ---
@@ -218,6 +219,16 @@ public readonly nodeRole: Role;
 
 ---
 
+##### `serviceAccountName`<sup>Required</sup> <a name="serviceAccountName" id="cdk-eks-karpenter.Karpenter.property.serviceAccountName"></a>
+
+```typescript
+public readonly serviceAccountName: string;
+```
+
+- *Type:* string
+
+---
+
 ##### `version`<sup>Optional</sup> <a name="version" id="cdk-eks-karpenter.Karpenter.property.version"></a>
 
 ```typescript
@@ -249,6 +260,7 @@ const karpenterProps: KarpenterProps = { ... }
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.helmExtraValues">helmExtraValues</a></code> | <code>any</code> | Extra values to pass to the Karpenter Helm chart. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.namespace">namespace</a></code> | <code>string</code> | The Kubernetes namespace to install to. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.nodeRole">nodeRole</a></code> | <code>aws-cdk-lib.aws_iam.Role</code> | Custom NodeRole to pass for Karpenter Nodes. |
+| <code><a href="#cdk-eks-karpenter.KarpenterProps.property.serviceAccountName">serviceAccountName</a></code> | <code>string</code> | The Kubernetes ServiceAccount name to use. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.version">version</a></code> | <code>string</code> | The helm chart version to install. |
 
 ---
@@ -299,6 +311,19 @@ public readonly nodeRole: Role;
 - *Type:* aws-cdk-lib.aws_iam.Role
 
 Custom NodeRole to pass for Karpenter Nodes.
+
+---
+
+##### `serviceAccountName`<sup>Optional</sup> <a name="serviceAccountName" id="cdk-eks-karpenter.KarpenterProps.property.serviceAccountName"></a>
+
+```typescript
+public readonly serviceAccountName: string;
+```
+
+- *Type:* string
+- *Default:* karpenter
+
+The Kubernetes ServiceAccount name to use.
 
 ---
 

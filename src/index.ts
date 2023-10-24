@@ -20,6 +20,13 @@ export interface KarpenterProps {
   readonly namespace?: string;
 
   /**
+   * The Kubernetes ServiceAccount name to use
+   *
+   * @default karpenter
+   */
+  readonly serviceAccountName?: string;
+
+  /**
    * The helm chart version to install
    *
    * @default - latest
@@ -41,6 +48,7 @@ export interface KarpenterProps {
 export class Karpenter extends Construct {
   public readonly cluster: Cluster;
   public readonly namespace: string;
+  public readonly serviceAccountName: string;
   public readonly version?: string;
   public readonly nodeRole: Role;
   public readonly helmExtraValues: any;
@@ -52,6 +60,7 @@ export class Karpenter extends Construct {
 
     this.cluster = props.cluster;
     this.namespace = props.namespace ?? 'karpenter';
+    this.serviceAccountName = props.serviceAccountName ?? 'karpenter';
     this.version = props.version;
     this.helmExtraValues = props.helmExtraValues ?? {};
 
@@ -61,9 +70,8 @@ export class Karpenter extends Construct {
      *
      * We will also create a role mapping in the `aws-auth` ConfigMap so that the nodes can authenticate
      * with the Kubernetes API using IAM.
-     */
-
-    /* Create Node Role if nodeRole not added as prop
+     *
+     * Create Node Role if nodeRole not added as prop
      * Make sure that the Role that is added does not have an Instance Profile associated to it
      * since we will create it here.
     */
@@ -110,6 +118,7 @@ export class Karpenter extends Construct {
     });
 
     this.serviceAccount = this.cluster.addServiceAccount('karpenter', {
+      name: this.serviceAccountName,
       namespace: this.namespace,
     });
     this.serviceAccount.node.addDependency(namespace);

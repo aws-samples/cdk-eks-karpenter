@@ -10,7 +10,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_21,
+      version: KubernetesVersion.V1_27,
     });
 
     new Karpenter(stack, 'Karpenter', {
@@ -28,7 +28,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_21,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default version
@@ -49,7 +49,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_21,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default namespace
@@ -94,33 +94,12 @@ describe('Karpenter installation', () => {
     expect(values['Fn::Join'][1][0]).toContain('{\"foo.key\":\"foo.value\"');
   });
 
-  it('should install from old URL if Karpenter version < v0.17.0', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test-stack');
-
-    const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_23,
-    });
-
-    // Create Karpenter install with non-default version
-    new Karpenter(stack, 'Karpenter', {
-      cluster: cluster,
-      version: 'v0.6.0',
-    });
-
-    const t = Template.fromStack(stack);
-    t.hasResource('Custom::AWSCDK-EKS-Cluster', {});
-    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
-      Repository: Match.stringLikeRegexp('https://charts.karpenter.sh'),
-    });
-  });
-
   it('should use existing nodeRole instead of creating a new role', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_24,
+      version: KubernetesVersion.V1_27,
     });
 
     const preexistingRole = new Role(stack, 'PreExistingRole', {
@@ -151,7 +130,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_24,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default version
@@ -200,13 +179,36 @@ describe('Karpenter installation', () => {
       ]),
     }));
   });
+});
+
+describe('Karpenter Versions', () => {
+  it('should install from old URL if Karpenter version < v0.17.0', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_27,
+    });
+
+    // Create Karpenter install with non-default version
+    new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+      version: 'v0.6.0',
+    });
+
+    const t = Template.fromStack(stack);
+    t.hasResource('Custom::AWSCDK-EKS-Cluster', {});
+    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
+      Repository: Match.stringLikeRegexp('https://charts.karpenter.sh'),
+    });
+  });
 
   it('should install from new URL if Karpenter version >= v0.17.0', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_23,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default version
@@ -227,7 +229,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_23,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default version
@@ -246,5 +248,54 @@ describe('Karpenter installation', () => {
     const values = valueCapture.asObject();
 
     expect(values['Fn::Join'][1]).toContain('\"}},\"settings\":{\"aws\":{\"clusterName\":\"');
+  });
+});
+
+describe('Kubernetes ServiceAccount', () => {
+  it('should create SA named: karpenter (default)', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_27,
+    });
+
+    new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+    });
+
+    const t = Template.fromStack(stack);
+    // Test if we have created a ServiceAccount
+    const valueCapture = new Capture();
+    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
+      Values: valueCapture,
+    });
+
+    const values = valueCapture.asObject();
+    expect(values['Fn::Join'][1][0]).toContain('{\"serviceAccount\":{\"create\":false,\"name\":\"karpenter\"');
+  });
+
+  it('should create SA named: custom-sa', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_27,
+    });
+
+    new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+      serviceAccountName: 'custom-sa',
+    });
+
+    const t = Template.fromStack(stack);
+    // Test if we have created a ServiceAccount
+    const valueCapture = new Capture();
+    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
+      Values: valueCapture,
+    });
+
+    const values = valueCapture.asObject();
+    expect(values['Fn::Join'][1][0]).toContain('{\"serviceAccount\":{\"create\":false,\"name\":\"custom-sa\"');
   });
 });
