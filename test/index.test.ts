@@ -10,7 +10,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_21,
+      version: KubernetesVersion.V1_27,
     });
 
     new Karpenter(stack, 'Karpenter', {
@@ -28,7 +28,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_21,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default version
@@ -49,7 +49,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_21,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default namespace
@@ -99,7 +99,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_24,
+      version: KubernetesVersion.V1_27,
     });
 
     const preexistingRole = new Role(stack, 'PreExistingRole', {
@@ -130,7 +130,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_24,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default version
@@ -208,7 +208,7 @@ describe('Karpenter Versions', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_23,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default version
@@ -229,7 +229,7 @@ describe('Karpenter Versions', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_23,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with non-default version
