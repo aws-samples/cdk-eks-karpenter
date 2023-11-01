@@ -5,6 +5,18 @@
       "type": "build"
     },
     {
+      "name": "@aws-cdk/lambda-layer-kubectl-v25",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/lambda-layer-kubectl-v26",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/lambda-layer-kubectl-v27",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "version": "^27",
       "type": "build"
@@ -26,7 +38,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "2.89.0",
+      "version": "2.103.1",
       "type": "build"
     },
     {
@@ -108,7 +120,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.89.0",
+      "version": "^2.103.1",
       "type": "peer"
     },
     {
