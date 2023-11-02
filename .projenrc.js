@@ -9,6 +9,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
   description: 'CDK construct library that allows you install Karpenter in an AWS EKS cluster',
   keywords: ['eks', 'karpenter'],
   cdkVersion: '2.104.0',
+
+  majorVersion: 1,
+
   devDeps: [
     '@aws-cdk/lambda-layer-kubectl-v24',
     '@aws-cdk/lambda-layer-kubectl-v25',
