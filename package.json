@@ -43,9 +43,9 @@
     "@aws-cdk/lambda-layer-kubectl-v27": "^2.0.0",
     "@types/jest": "^27",
     "@types/node": "^16",
-    "@typescript-eslint/eslint-plugin": "^5",
-    "@typescript-eslint/parser": "^5",
-    "aws-cdk-lib": "2.103.1",
+    "@typescript-eslint/eslint-plugin": "^6",
+    "@typescript-eslint/parser": "^6",
+    "aws-cdk-lib": "2.104.0",
     "constructs": "10.0.5",
     "eslint": "^8",
     "eslint-import-resolver-node": "^0.3.6",
@@ -57,13 +57,14 @@
     "jsii-diff": "^1.55.1",
     "jsii-docgen": "^6.2.3",
     "jsii-pacmak": "^1.74.0",
-    "projen": "^0.71.87",
+    "jsii-rosetta": "1.x",
+    "projen": "^0.76.17",
     "standard-version": "^9",
     "ts-jest": "^27",
     "typescript": "^4.6.2"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.103.1",
+    "aws-cdk-lib": "^2.104.0",
     "constructs": "^10.0.5"
   },
   "resolutions": {
