@@ -43,7 +43,9 @@ new Karpenter(scope: Construct, id: string, props: KarpenterProps)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#cdk-eks-karpenter.Karpenter.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#cdk-eks-karpenter.Karpenter.addEC2NodeClass">addEC2NodeClass</a></code> | addEC2NodeClass adds a EC2NodeClass to the Karpenter configuration. |
 | <code><a href="#cdk-eks-karpenter.Karpenter.addManagedPolicyToKarpenterRole">addManagedPolicyToKarpenterRole</a></code> | addManagedPolicyToKarpenterRole adds Managed Policies To Karpenter Role. |
+| <code><a href="#cdk-eks-karpenter.Karpenter.addNodePool">addNodePool</a></code> | addNodePool adds a NodePool to the Karpenter configuration. |
 | <code><a href="#cdk-eks-karpenter.Karpenter.addNodeTemplate">addNodeTemplate</a></code> | addNodeTemplate adds a node template manifest to the cluster. |
 | <code><a href="#cdk-eks-karpenter.Karpenter.addProvisioner">addProvisioner</a></code> | addProvisioner adds a provisioner manifest to the cluster. |
 
@@ -56,6 +58,30 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
+
+##### `addEC2NodeClass` <a name="addEC2NodeClass" id="cdk-eks-karpenter.Karpenter.addEC2NodeClass"></a>
+
+```typescript
+public addEC2NodeClass(id: string, ec2NodeClassSpec: {[ key: string ]: any}): {[ key: string ]: any}
+```
+
+addEC2NodeClass adds a EC2NodeClass to the Karpenter configuration.
+
+###### `id`<sup>Required</sup> <a name="id" id="cdk-eks-karpenter.Karpenter.addEC2NodeClass.parameter.id"></a>
+
+- *Type:* string
+
+must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character.
+
+---
+
+###### `ec2NodeClassSpec`<sup>Required</sup> <a name="ec2NodeClassSpec" id="cdk-eks-karpenter.Karpenter.addEC2NodeClass.parameter.ec2NodeClassSpec"></a>
+
+- *Type:* {[ key: string ]: any}
+
+spec of Karpenters EC2NodeClass API.
+
+---
 
 ##### `addManagedPolicyToKarpenterRole` <a name="addManagedPolicyToKarpenterRole" id="cdk-eks-karpenter.Karpenter.addManagedPolicyToKarpenterRole"></a>
 
@@ -73,7 +99,31 @@ iam managed policy to add to the karpenter role.
 
 ---
 
-##### `addNodeTemplate` <a name="addNodeTemplate" id="cdk-eks-karpenter.Karpenter.addNodeTemplate"></a>
+##### `addNodePool` <a name="addNodePool" id="cdk-eks-karpenter.Karpenter.addNodePool"></a>
+
+```typescript
+public addNodePool(id: string, nodePoolSpec: {[ key: string ]: any}): {[ key: string ]: any}
+```
+
+addNodePool adds a NodePool to the Karpenter configuration.
+
+###### `id`<sup>Required</sup> <a name="id" id="cdk-eks-karpenter.Karpenter.addNodePool.parameter.id"></a>
+
+- *Type:* string
+
+must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character.
+
+---
+
+###### `nodePoolSpec`<sup>Required</sup> <a name="nodePoolSpec" id="cdk-eks-karpenter.Karpenter.addNodePool.parameter.nodePoolSpec"></a>
+
+- *Type:* {[ key: string ]: any}
+
+spec of Karpenters NodePool API.
+
+---
+
+##### ~~`addNodeTemplate`~~ <a name="addNodeTemplate" id="cdk-eks-karpenter.Karpenter.addNodeTemplate"></a>
 
 ```typescript
 public addNodeTemplate(id: string, nodeTemplateSpec: {[ key: string ]: any}): void
@@ -100,7 +150,7 @@ spec of Karpenters Node Template object.
 
 ---
 
-##### `addProvisioner` <a name="addProvisioner" id="cdk-eks-karpenter.Karpenter.addProvisioner"></a>
+##### ~~`addProvisioner`~~ <a name="addProvisioner" id="cdk-eks-karpenter.Karpenter.addProvisioner"></a>
 
 ```typescript
 public addProvisioner(id: string, provisionerSpec: {[ key: string ]: any}): void

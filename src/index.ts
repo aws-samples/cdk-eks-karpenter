@@ -1,10 +1,11 @@
-import { Aws, Duration } from 'aws-cdk-lib';
+import { Aws, CfnJson, Duration } from 'aws-cdk-lib';
 import { Cluster, HelmChart } from 'aws-cdk-lib/aws-eks';
 import { Rule } from 'aws-cdk-lib/aws-events';
 import { SqsQueue } from 'aws-cdk-lib/aws-events-targets';
 import { CfnInstanceProfile, IManagedPolicy, ManagedPolicy, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
+import { Utils } from './utils';
 
 export interface KarpenterProps {
   /**
@@ -42,7 +43,6 @@ export interface KarpenterProps {
    * Custom NodeRole to pass for Karpenter Nodes
    */
   readonly nodeRole?: Role;
-
 }
 
 export class Karpenter extends Construct {
@@ -85,8 +85,6 @@ export class Karpenter extends Construct {
           ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
         ],
       });
-
-
     } else {
       this.nodeRole = props.nodeRole;
     }
@@ -123,35 +121,248 @@ export class Karpenter extends Construct {
     });
     this.serviceAccount.node.addDependency(namespace);
 
+    var iamPolicy = [];
+
     // diffrent values for diffrent Karpenter versions
-    var iamPolicy = [
-      new PolicyStatement({
-        actions: [
-          'ec2:CreateLaunchTemplate',
-          'ec2:DeleteLaunchTemplate',
-          'ec2:CreateFleet',
-          'ec2:RunInstances',
-          'ec2:CreateTags',
-          'ec2:TerminateInstances',
-          'ec2:DescribeLaunchTemplates',
-          'ec2:DescribeInstances',
-          'ec2:DescribeSecurityGroups',
-          'ec2:DescribeSubnets',
-          'ec2:DescribeInstanceTypes',
-          'ec2:DescribeInstanceTypeOfferings',
-          'ec2:DescribeAvailabilityZones',
-          'ssm:GetParameter',
-          'pricing:GetProducts',
-          'ec2:DescribeSpotPriceHistory',
-          'ec2:DescribeImages',
+    // policies taken from https://raw.githubusercontent.com/aws/karpenter/v0.32.0/website/content/en/preview/getting-started/getting-started-with-karpenter/cloudformation.yaml
+    const AllowScopedInstanceProfileTagActions = new CfnJson(this, 'AllowScopedInstanceProfileTagActions', {
+      value: {
+        [`aws:ResourceTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
+        [`aws:RequestTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
+        'aws:ResourceTag/topology.kubernetes.io/region': `${Aws.REGION}`,
+        'aws:RequestTag/topology.kubernetes.io/region': `${Aws.REGION}`,
+      },
+    });
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowScopedInstanceProfileTagActions',
+      resources: ['*'],
+      actions: [
+        'iam:TagInstanceProfile',
+      ],
+      conditions: {
+        StringEquals: AllowScopedInstanceProfileTagActions,
+        StringLike: {
+          'aws:ResourceTag/karpenter.k8s.aws/ec2nodeclass': '*',
+          'aws:RequestTag/karpenter.k8s.aws/ec2nodeclass': '*',
+        },
+      },
+    }));
+
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowScopedEC2InstanceActions',
+      actions: [
+        'ec2:RunInstances',
+        'ec2:CreateFleet',
+      ],
+      resources: [
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}::image/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}::snapshot/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:spot-instances-request/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:security-group/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:subnet/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
+      ],
+    }));
+
+    const AllowScopedEC2InstanceActionsWithTags = new CfnJson(this, 'AllowScopedEC2InstanceActionsWithTags', {
+      value: {
+        [`aws:RequestTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
+      },
+    });
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowScopedEC2InstanceActionsWithTags',
+      resources: [
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:fleet/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:instance/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:volume/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:network-interface/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
+      ],
+      actions: [
+        'ec2:RunInstances',
+        'ec2:CreateFleet',
+        'ec2:CreateLaunchTemplate',
+      ],
+      conditions: {
+        StringEquals: AllowScopedEC2InstanceActionsWithTags,
+        StringLike: {
+          'aws:RequestTag/karpenter.sh/nodepool': '*',
+        },
+      },
+    }));
+
+    const AllowScopedResourceCreationTagging = new CfnJson(this, 'AllowScopedResourceCreationTagging', {
+      value: {
+        [`aws:RequestTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
+        'ec2:CreateAction': [
+          'RunInstances',
+          'CreateFleet',
+          'CreateLaunchTemplate',
         ],
-        resources: ['*'],
-      }),
-      new PolicyStatement({
-        actions: ['iam:PassRole'],
-        resources: [this.nodeRole.roleArn],
-      }),
-    ];
+      },
+    });
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowScopedResourceCreationTagging',
+      resources: [
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:fleet/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:instance/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:volume/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:network-interface/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
+      ],
+      actions: ['ec2:CreateTags'],
+      conditions: {
+        StringEquals: AllowScopedResourceCreationTagging,
+        StringLike: {
+          'aws:RequestTag/karpenter.sh/nodepool': '*',
+        },
+      },
+    }));
+
+    const AllowScopedResourceTagging = new CfnJson(this, 'AllowScopedResourceTagging', {
+      value: {
+        [`aws:ResourceTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
+      },
+    });
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowScopedResourceTagging',
+      resources: [`arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:instance/*`],
+      actions: ['ec2:CreateTags'],
+      conditions: {
+        'StringEquals': AllowScopedResourceTagging,
+        'StringLike': {
+          'aws:ResourceTag/karpenter.sh/nodepool': '*',
+        },
+        'ForAllValues:StringEquals': {
+          'aws:TagKeys': [
+            'karpenter.sh/nodeclaim',
+            'Name',
+          ],
+        },
+      },
+    }));
+
+    const AllowScopedDeletion = new CfnJson(this, 'AllowScopedDeletion', {
+      value: {
+        [`aws:ResourceTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
+      },
+    });
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowScopedDeletion',
+      resources: [
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:instance/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
+      ],
+      actions: [
+        'ec2:TerminateInstances',
+        'ec2:DeleteLaunchTemplate',
+      ],
+      conditions: {
+        StringEquals: AllowScopedDeletion,
+        StringLike: {
+          'aws:ResourceTag/karpenter.sh/nodepool': '*',
+        },
+      },
+    }));
+
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowRegionalReadActions',
+      resources: ['*'],
+      actions: [
+        'ec2:DescribeAvailabilityZones',
+        'ec2:DescribeImages',
+        'ec2:DescribeInstances',
+        'ec2:DescribeInstanceTypeOfferings',
+        'ec2:DescribeInstanceTypes',
+        'ec2:DescribeLaunchTemplates',
+        'ec2:DescribeSecurityGroups',
+        'ec2:DescribeSpotPriceHistory',
+        'ec2:DescribeSubnets',
+      ],
+      conditions: {
+        StringEquals: {
+          'aws:RequestedRegion': `${Aws.REGION}`,
+        },
+      },
+    }));
+
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowSSMReadActions',
+      resources: [`arn:${Aws.PARTITION}:ssm:${Aws.REGION}::parameter/aws/service/*`],
+      actions: ['ssm:GetParameter'],
+    }));
+
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowPricingReadActions',
+      resources: ['*'],
+      actions: ['pricing:GetProducts'],
+    }));
+
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowPassingInstanceRole',
+      resources: [this.nodeRole.roleArn],
+      actions: ['iam:PassRole'],
+      conditions: {
+        StringEquals: {
+          'iam:PassedToService': 'ec2.amazonaws.com',
+        },
+      },
+    }));
+
+    const AllowScopedInstanceProfileCreationActions = new CfnJson(this, 'AllowScopedInstanceProfileCreationActions', {
+      value: {
+        [`aws:RequestTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
+        'aws:RequestTag/topology.kubernetes.io/region': `${Aws.REGION}`,
+      },
+    });
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowScopedInstanceProfileCreationActions',
+      resources: ['*'],
+      actions: [
+        'iam:CreateInstanceProfile',
+      ],
+      conditions: {
+        StringEquals: AllowScopedInstanceProfileCreationActions,
+        StringLike: {
+          'aws:RequestTag/karpenter.k8s.aws/ec2nodeclass': '*',
+        },
+      },
+    }));
+
+    const AllowScopedInstanceProfileActions = new CfnJson(this, 'AllowScopedInstanceProfileActions', {
+      value: {
+        [`aws:ResourceTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
+        'aws:ResourceTag/topology.kubernetes.io/region': `${Aws.REGION}`,
+      },
+    });
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowScopedInstanceProfileActions',
+      resources: ['*'],
+      actions: [
+        'iam:AddRoleToInstanceProfile',
+        'iam:RemoveRoleFromInstanceProfile',
+        'iam:DeleteInstanceProfile',
+      ],
+      conditions: {
+        StringEquals: AllowScopedInstanceProfileActions,
+        StringLike: {
+          'aws:ResourceTag/karpenter.k8s.aws/ec2nodeclass': '*',
+        },
+      },
+    }));
+
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowInstanceProfileReadActions',
+      resources: ['*'],
+      actions: ['iam:GetInstanceProfile'],
+    }));
+
+    iamPolicy.push(new PolicyStatement({
+      sid: 'AllowAPIServerEndpointDiscovery',
+      resources: [`arn:${Aws.PARTITION}:eks:${Aws.REGION}:${Aws.ACCOUNT_ID}:cluster/${this.cluster.clusterName}`],
+      actions: ['eks:DescribeCluster'],
+    }));
+
     var repoUrl = 'https://charts.karpenter.sh';
 
     // These are fixed values that we supply to the Helm Chart.
@@ -291,25 +502,92 @@ export class Karpenter extends Construct {
   }
 
   /**
+   * addEC2NodeClass adds a EC2NodeClass to the Karpenter configuration.
+   *
+   * @param id must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character
+   * @param ec2NodeClassSpec spec of Karpenters EC2NodeClass API
+   *
+   * @returns the metadata object of the created manifest
+   */
+  public addEC2NodeClass(id: string, ec2NodeClassSpec: Record<string, any>): Record<string, any> {
+    // Validate the name of the resource
+    if (!Utils.validateKubernetesNameConformance(id)) {
+      throw new Error('name does not conform to k8s policy');
+    }
+
+    // Ensure we provide a valid spec
+    Utils.hasRequiredKeys(ec2NodeClassSpec, [
+      'amiFamily', 'subnetSelectorTerms', 'securityGroupSelectorTerms', 'role',
+    ]);
+
+    return this.addManifest(id, {
+      apiVersion: 'karpenter.k8s.aws/v1beta1',
+      kind: 'EC2NodeClass',
+      metadata: {
+        name: id,
+        namespace: this.namespace,
+      },
+      spec: ec2NodeClassSpec,
+    });
+  }
+
+  /**
+   * addNodePool adds a NodePool to the Karpenter configuration.
+   *
+   * @param id must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character
+   * @param nodePoolSpec spec of Karpenters NodePool API
+   *
+   * @returns the metadata object of the created manifest
+   */
+  public addNodePool(id: string, nodePoolSpec: Record<string, any>): Record<string, any> {
+    // Validate the name of the resource
+    if (!Utils.validateKubernetesNameConformance(id)) {
+      throw new Error('name does not conform to k8s policy');
+    }
+
+    // Ensure we provide a valid spec
+    Utils.hasRequiredKeys(nodePoolSpec.template.spec, ['nodeClassRef', 'requirements']);
+
+    return this.addManifest(id, {
+      apiVersion: 'karpenter.sh/v1beta1',
+      kind: 'NodePool',
+      metadata: {
+        name: id,
+        namespace: this.namespace,
+      },
+      spec: nodePoolSpec,
+    });
+  }
+
+  /**
    * addProvisioner adds a provisioner manifest to the cluster. Currently the provisioner spec
    * parameter is relatively free form.
    *
    * @param id - must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character
    * @param provisionerSpec - spec of Karpenters Provisioner object.
+   *
+   * @deprecated This method should not be used with Karpenter >v0.32.0
    */
   public addProvisioner(id: string, provisionerSpec: Record<string, any>): void {
-    let m = {
-      apiVersion: 'karpenter.sh/v1alpha5',
+    // Validate the name of the resource
+    if (!Utils.validateKubernetesNameConformance(id)) {
+      throw new Error('name does not conform to k8s policy');
+    }
+    // If later than version v0.32.0, we should throw an exception here as the APIs
+    // changed after that version and this method should not be used.
+    if (this.version === undefined || this.compareVersion(this.version!, 'v0.32.0')
+      || this.version === 'v0.32.0') {
+      throw new Error('This method is not supported for this Karpenter version. Please use addEC2NodeClass instead.');
+    }
+    this.addManifest(id, {
+      apiVersion: 'karpenter.k8s.aws/v1alpha5',
       kind: 'Provisioner',
       metadata: {
         name: id,
         namespace: this.namespace,
       },
-      spec: {},
-    };
-    m.spec = provisionerSpec;
-    let provisioner = this.cluster.addManifest(id, m);
-    provisioner.node.addDependency(this.chart);
+      spec: provisionerSpec,
+    });
   }
 
   /**
@@ -318,20 +596,68 @@ export class Karpenter extends Construct {
    *
    * @param id - must consist of lower case alphanumeric characters, \'-\' or \'.\', and must start and end with an alphanumeric character
    * @param nodeTemplateSpec - spec of Karpenters Node Template object.
+   *
+   * @deprecated This method should not be used with Karpenter >v0.32.0
    */
   public addNodeTemplate(id: string, nodeTemplateSpec: Record<string, any>): void {
-    let m = {
-      apiVersion: 'karpenter.k8s.aws/v1alpha1',
+    // Validate the name of the resource
+    if (!Utils.validateKubernetesNameConformance(id)) {
+      throw new Error('name does not conform to k8s policy');
+    }
+
+    // If later than version v0.32.0, we should throw an exception here as the APIs
+    // changed after that version and this method should not be used.
+    if (this.version === undefined || this.compareVersion(this.version!, 'v0.32.0')
+      || this.version === 'v0.32.0') {
+      throw new Error('This method is not supported for this Karpenter version. Please use addEC2NodeClass instead.');
+    }
+    this.addManifest(id, {
+      apiVersion: 'karpenter.k8s.aws/v1',
       kind: 'AWSNodeTemplate',
       metadata: {
-        name: id,
         namespace: this.namespace,
       },
-      spec: {},
+      spec: nodeTemplateSpec,
+    });
+  }
+
+  /**
+   * addManifest crafts Kubernetes manifests for the specific APIs
+   *
+   * @param id
+   * @param apiVersion
+   * @param kind
+   * @param metadata
+   * @param spec
+   *
+   * @returns the metadata object of the created manifest
+   */
+  private addManifest(
+    id: string,
+    props: {
+      apiVersion: string;
+      kind: string;
+      metadata: Record<string, any>;
+      spec: Record<string, any>;
+    },
+  ): Record<string, any> {
+    let defaultMetadata: Record<string, any> = {
+      name: id,
     };
-    m.spec = nodeTemplateSpec;
-    let provisioner = this.cluster.addManifest(id, m);
-    provisioner.node.addDependency(this.chart);
+    let m = {
+      apiVersion: props.apiVersion,
+      kind: props.kind,
+      metadata: {
+        // We will merge our metadata details. The parameters provided will be overwritten by
+        // defaultMetadata
+        ...props.metadata, ...defaultMetadata,
+      },
+      spec: props.spec,
+    };
+    let manifstResource = this.cluster.addManifest(id, m);
+    manifstResource.node.addDependency(this.chart);
+
+    return m.metadata;
   }
 
   /**
