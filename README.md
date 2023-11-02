@@ -19,7 +19,7 @@ In your CDK project, initialize a new Karpenter construct for your EKS cluster, 
 const cluster = new Cluster(this, 'testCluster', {
   vpc: vpc,
   role: clusterRole,
-  version: KubernetesVersion.V1_21,
+  version: KubernetesVersion.V1_27,
   defaultCapacity: 1
 });
 
@@ -29,31 +29,9 @@ const karpenter = new Karpenter(this, 'Karpenter', {
 ```
 
 This will install and configure Karpenter in your cluster. To have Karpenter do something useful, you
-also need to create a [provisioner for AWS](https://karpenter.sh/v0.31/concepts/provisioners/). You can
-do that from CDK using `addProvisioner()`, similar to the example below:
-
-```typescript
-karpenter.addProvisioner('spot-provisioner', {
-  requirements: [{
-    key: 'karpenter.sh/capacity-type',
-    operator: 'In',
-    values: ['spot']
-  }],
-  limits: {
-    resources: {
-      cpu: 20
-    }
-  },
-  provider: {
-    subnetSelector: {
-      Name: 'PublicSubnet*'
-    },
-    securityGroupSelector: {
-      'aws:eks:cluster-name': cluster.clusterName
-    }
-  }
-});
-```
+also need to create an [EC2NodeClass](https://karpenter.sh/docs/concepts/nodeclasses/) and an
+[NodePool](https://karpenter.sh/docs/concepts/nodepools/), for a more complete example, see
+[test/integ.karpenter.ts](./test/integ.karpenter.ts).
 
 ## Known issues
 
