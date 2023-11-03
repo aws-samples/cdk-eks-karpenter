@@ -64,8 +64,7 @@ describe('Karpenter Versions', () => {
     t.hasResource('Custom::AWSCDK-EKS-Cluster', {});
     t.hasResource('Custom::AWSCDK-EKS-HelmChart', {});
 
-    const helmChartValues = karpenter.getHelmChartValues();
-    expect(helmChartValues).toEqual(
+    expect(karpenter.helmChartValues).toEqual(
       expect.objectContaining({
         settings: expect.objectContaining({
           aws: expect.objectContaining({
@@ -188,13 +187,12 @@ describe('Karpenter Versions', () => {
       version: 'v0.32.0',
     });
 
-    const helmChartValues = karpenter.getHelmChartValues();
-    expect(helmChartValues).not.toContain(
+    expect(karpenter.helmChartValues).not.toContain(
       expect.objectContaining({
         aws: expect.anything,
       }),
     );
-    expect(helmChartValues).toEqual(
+    expect(karpenter.helmChartValues).toEqual(
       expect.objectContaining({
         settings: expect.objectContaining({
           clusterName: expect.any(String),

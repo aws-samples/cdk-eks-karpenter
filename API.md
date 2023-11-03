@@ -214,6 +214,7 @@ Any object.
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.nodeRole">nodeRole</a></code> | <code>aws-cdk-lib.aws_iam.Role</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.serviceAccountName">serviceAccountName</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.version">version</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#cdk-eks-karpenter.Karpenter.property.helmChartValues">helmChartValues</a></code> | <code>{[ key: string ]: any}</code> | *No description.* |
 
 ---
 
@@ -279,13 +280,23 @@ public readonly serviceAccountName: string;
 
 ---
 
-##### `version`<sup>Optional</sup> <a name="version" id="cdk-eks-karpenter.Karpenter.property.version"></a>
+##### `version`<sup>Required</sup> <a name="version" id="cdk-eks-karpenter.Karpenter.property.version"></a>
 
 ```typescript
 public readonly version: string;
 ```
 
 - *Type:* string
+
+---
+
+##### `helmChartValues`<sup>Required</sup> <a name="helmChartValues" id="cdk-eks-karpenter.Karpenter.property.helmChartValues"></a>
+
+```typescript
+public readonly helmChartValues: {[ key: string ]: any};
+```
+
+- *Type:* {[ key: string ]: any}
 
 ---
 
@@ -307,11 +318,11 @@ const karpenterProps: KarpenterProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_eks.Cluster</code> | The EKS Cluster to attach to. |
-| <code><a href="#cdk-eks-karpenter.KarpenterProps.property.helmExtraValues">helmExtraValues</a></code> | <code>any</code> | Extra values to pass to the Karpenter Helm chart. |
+| <code><a href="#cdk-eks-karpenter.KarpenterProps.property.version">version</a></code> | <code>string</code> | The helm chart version to install. |
+| <code><a href="#cdk-eks-karpenter.KarpenterProps.property.helmExtraValues">helmExtraValues</a></code> | <code>{[ key: string ]: any}</code> | Extra values to pass to the Karpenter Helm chart. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.namespace">namespace</a></code> | <code>string</code> | The Kubernetes namespace to install to. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.nodeRole">nodeRole</a></code> | <code>aws-cdk-lib.aws_iam.Role</code> | Custom NodeRole to pass for Karpenter Nodes. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.serviceAccountName">serviceAccountName</a></code> | <code>string</code> | The Kubernetes ServiceAccount name to use. |
-| <code><a href="#cdk-eks-karpenter.KarpenterProps.property.version">version</a></code> | <code>string</code> | The helm chart version to install. |
 
 ---
 
@@ -327,13 +338,26 @@ The EKS Cluster to attach to.
 
 ---
 
+##### `version`<sup>Required</sup> <a name="version" id="cdk-eks-karpenter.KarpenterProps.property.version"></a>
+
+```typescript
+public readonly version: string;
+```
+
+- *Type:* string
+- *Default:* latest
+
+The helm chart version to install.
+
+---
+
 ##### `helmExtraValues`<sup>Optional</sup> <a name="helmExtraValues" id="cdk-eks-karpenter.KarpenterProps.property.helmExtraValues"></a>
 
 ```typescript
-public readonly helmExtraValues: any;
+public readonly helmExtraValues: {[ key: string ]: any};
 ```
 
-- *Type:* any
+- *Type:* {[ key: string ]: any}
 
 Extra values to pass to the Karpenter Helm chart.
 
@@ -374,19 +398,6 @@ public readonly serviceAccountName: string;
 - *Default:* karpenter
 
 The Kubernetes ServiceAccount name to use.
-
----
-
-##### `version`<sup>Optional</sup> <a name="version" id="cdk-eks-karpenter.KarpenterProps.property.version"></a>
-
-```typescript
-public readonly version: string;
-```
-
-- *Type:* string
-- *Default:* latest
-
-The helm chart version to install.
 
 ---
 

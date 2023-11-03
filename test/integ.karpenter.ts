@@ -105,7 +105,7 @@ class TestEKSStack extends Stack {
     });
 
     new CfnOutput(this, 'UpdateKubeConfigCommand', {
-      value: `aws eks update-kubeconfig --name ${cluster.clusterName} --role-arn ${cluster.adminRole.roleArn}`
+      value: `aws eks update-kubeconfig --name ${cluster.clusterName} --role-arn ${cluster.adminRole.roleArn}`,
     });
   }
 }

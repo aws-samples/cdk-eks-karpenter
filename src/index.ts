@@ -56,7 +56,7 @@ export class Karpenter extends Construct {
 
   private readonly chart: HelmChart;
   private readonly serviceAccount: any;
-  private helmChartValues: Record<string, any>;
+  public helmChartValues: Record<string, any>;
   private controllerIAMPolicyStatements: PolicyStatement[];
   private interruptionQueue: IQueue | undefined;
 
@@ -365,15 +365,6 @@ export class Karpenter extends Construct {
    */
   public addManagedPolicyToKarpenterRole(managedPolicy: IManagedPolicy): void {
     this.serviceAccount.role.addManagedPolicy(managedPolicy);
-  }
-
-  /**
-   * getHelmChartValues returns the finalized values passed to the helm chart
-   *
-   * @returns Record<string, any>
-   */
-  public getHelmChartValues(): Record<string, any> {
-    return this.helmChartValues;
   }
 
   /**
