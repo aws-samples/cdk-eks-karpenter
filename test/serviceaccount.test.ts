@@ -14,6 +14,7 @@ describe('Kubernetes ServiceAccount', () => {
 
     new Karpenter(stack, 'Karpenter', {
       cluster: cluster,
+      version: 'v0.32.0',
     });
 
     const t = Template.fromStack(stack);
@@ -38,6 +39,7 @@ describe('Kubernetes ServiceAccount', () => {
     new Karpenter(stack, 'Karpenter', {
       cluster: cluster,
       serviceAccountName: 'custom-sa',
+      version: 'v0.32.0',
     });
 
     const t = Template.fromStack(stack);

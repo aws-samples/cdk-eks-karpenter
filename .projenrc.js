@@ -18,6 +18,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-cdk/lambda-layer-kubectl-v26',
     '@aws-cdk/lambda-layer-kubectl-v27',
   ],
+  deps: [
+    'semver',
+  ],
   defaultReleaseBranch: 'main',
   name: PROJECT_NAME,
   repositoryUrl: 'https://github.com/aws-samples/cdk-eks-karpenter.git',

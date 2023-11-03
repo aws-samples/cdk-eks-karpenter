@@ -22,6 +22,7 @@ describe('Karpenter installation', () => {
     new Karpenter(stack, 'Karpenter', {
       cluster: cluster,
       nodeRole: preexistingRole,
+      version: 'v0.32.0',
     });
 
     const t = Template.fromStack(stack);
@@ -47,6 +48,7 @@ describe('Karpenter installation', () => {
     // Create Karpenter install with non-default version
     const karpenter = new Karpenter(stack, 'Karpenter', {
       cluster: cluster,
+      version: 'v0.32.0',
     });
 
     const policyDocument = {

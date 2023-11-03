@@ -1,5 +1,5 @@
 import { KubectlV27Layer } from '@aws-cdk/lambda-layer-kubectl-v27';
-import { App, Stack, StackProps } from 'aws-cdk-lib';
+import { App, CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, CoreDnsComputeType, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
@@ -95,6 +95,18 @@ class TestEKSStack extends Stack {
     });
 
     karpenter.addManagedPolicyToKarpenterRole(ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
+
+    new CfnOutput(this, 'ClusterName', {
+      value: cluster.clusterName,
+    });
+
+    new CfnOutput(this, 'ClusterAdminRole', {
+      value: cluster.adminRole.roleArn,
+    });
+
+    new CfnOutput(this, 'UpdateKubeConfigCommand', {
+      value: `aws eks update-kubeconfig --name ${cluster.clusterName} --role-arn ${cluster.adminRole.roleArn}`
+    });
   }
 }
 

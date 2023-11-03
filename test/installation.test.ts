@@ -1,27 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
-import { Match, Template, Capture } from 'aws-cdk-lib/assertions';
+import { Template, Capture } from 'aws-cdk-lib/assertions';
 import { Cluster, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Karpenter } from '../src';
 
 describe('Karpenter installation', () => {
-  it('should install the latest version by default', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test-stack');
-
-    const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_27,
-    });
-
-    new Karpenter(stack, 'Karpenter', {
-      cluster: cluster,
-    });
-
-    const t = Template.fromStack(stack);
-    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
-      Version: Match.absent(),
-    });
-  });
-
   it('should install the desired version', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test-stack');
@@ -55,6 +37,7 @@ describe('Karpenter installation', () => {
     new Karpenter(stack, 'Karpenter', {
       cluster: cluster,
       namespace: 'kar-penter',
+      version: 'v0.32.0',
     });
 
     const t = Template.fromStack(stack);
@@ -69,7 +52,7 @@ describe('Karpenter installation', () => {
     const stack = new cdk.Stack(app, 'test-stack');
 
     const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_24,
+      version: KubernetesVersion.V1_27,
     });
 
     // Create Karpenter install with extra values
@@ -79,6 +62,7 @@ describe('Karpenter installation', () => {
       helmExtraValues: {
         'foo.key': 'foo.value',
       },
+      version: 'v0.32.0',
     });
 
     const t = Template.fromStack(stack);

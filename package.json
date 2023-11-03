@@ -67,6 +67,9 @@
     "aws-cdk-lib": "^2.104.0",
     "constructs": "^10.0.5"
   },
+  "dependencies": {
+    "semver": "^7.5.4"
+  },
   "resolutions": {
     "@types/babel__traverse": "7.18.2",
     "@types/prettier": "2.6.0"

@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { Match, Template, Capture } from 'aws-cdk-lib/assertions';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Cluster, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { Karpenter } from '../src';
 
@@ -46,7 +46,7 @@ describe('Karpenter Versions', () => {
     });
   });
 
-  it('should use new Values if Karpenter version >= v0.19.0', () => {
+  it('should use helm settings for Karpenter between version v0.19.0 and v0.32.0', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test-stack');
 
@@ -55,21 +55,26 @@ describe('Karpenter Versions', () => {
     });
 
     // Create Karpenter install with non-default version
-    new Karpenter(stack, 'Karpenter', {
+    const karpenter = new Karpenter(stack, 'Karpenter', {
       cluster: cluster,
       version: 'v0.19.1',
     });
 
     const t = Template.fromStack(stack);
-    const valueCapture = new Capture();
     t.hasResource('Custom::AWSCDK-EKS-Cluster', {});
-    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
-      Values: valueCapture,
-    });
+    t.hasResource('Custom::AWSCDK-EKS-HelmChart', {});
 
-    const values = valueCapture.asObject();
-
-    expect(values['Fn::Join'][1]).toContain('\"}},\"settings\":{\"aws\":{\"clusterName\":\"');
+    const helmChartValues = karpenter.getHelmChartValues();
+    expect(helmChartValues).toEqual(
+      expect.objectContaining({
+        settings: expect.objectContaining({
+          aws: expect.objectContaining({
+            clusterName: expect.any(String),
+            clusterEndpoint: expect.any(String),
+          }),
+        }),
+      }),
+    );
   });
 
   it('should throw an exception for Karpenter >=v0.32.0 and addNodeTemplate()', () => {
@@ -168,5 +173,35 @@ describe('Karpenter Versions', () => {
     t.hasResourceProperties('Custom::AWSCDK-EKS-KubernetesResource', Match.objectLike({
       Manifest: Match.stringLikeRegexp('\"apiVersion\":\"karpenter.sh\/v1beta1\",\"kind\":\"NodePool\",\"metadata\":{\"name\":\"nodepool\",\"namespace\":\"karpenter\"'),
     }));
+  });
+
+  it('should use correct helm values for if >= v0.32.0', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_27,
+    });
+
+    const karpenter = new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+      version: 'v0.32.0',
+    });
+
+    const helmChartValues = karpenter.getHelmChartValues();
+    expect(helmChartValues).not.toContain(
+      expect.objectContaining({
+        aws: expect.anything,
+      }),
+    );
+    expect(helmChartValues).toEqual(
+      expect.objectContaining({
+        settings: expect.objectContaining({
+          clusterName: expect.any(String),
+          clusterEndpoint: expect.any(String),
+          interruptionQueue: expect.any(String),
+        }),
+      }),
+    );
   });
 });
