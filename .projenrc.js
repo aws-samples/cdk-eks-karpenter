@@ -18,7 +18,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-cdk/lambda-layer-kubectl-v26',
     '@aws-cdk/lambda-layer-kubectl-v27',
   ],
-  deps: [
+  bundledDeps: [
     'semver',
   ],
   defaultReleaseBranch: 'main',
