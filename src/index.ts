@@ -502,6 +502,7 @@ export class Karpenter extends Construct {
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:volume/*`,
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:network-interface/*`,
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:spot-instances-request/*`,
       ],
       actions: [
         'ec2:RunInstances',
@@ -534,6 +535,7 @@ export class Karpenter extends Construct {
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:volume/*`,
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:network-interface/*`,
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
+        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:spot-instances-request/*`,
       ],
       actions: ['ec2:CreateTags'],
       conditions: {
