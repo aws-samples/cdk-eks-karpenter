@@ -482,7 +482,6 @@ export class Karpenter extends Construct {
       resources: [
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}::image/*`,
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}::snapshot/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:spot-instances-request/*`,
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:security-group/*`,
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:subnet/*`,
         `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
