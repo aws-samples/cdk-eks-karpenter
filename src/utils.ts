@@ -3,7 +3,7 @@
  */
 export class Utils {
   /**
-   * Check wether or not a string conforms to the lowercase RFC 1123. If not, Kubernetes will throws
+   * Check whether a string conforms to the lowercase RFC 1123. If not, Kubernetes will throw
    * an error saying that the name must conform with regex used for validation, which is:
    * \'[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\')\n'
    *
