@@ -49,6 +49,13 @@ class TestEKSStack extends Stack {
     const karpenter = new Karpenter(this, 'Karpenter', {
       cluster: cluster,
       version: 'v0.32.0', // test the newest version
+      helmExtraValues: {
+        settings: {
+          featureGates: {
+            spotToSpotConsolidation: true,
+          },
+        },
+      },
     });
 
     const nodeClass = karpenter.addEC2NodeClass('nodeclass', {
