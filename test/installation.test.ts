@@ -74,7 +74,8 @@ describe('Karpenter installation', () => {
     });
 
     const values = valueCapture.asObject();
-    expect(values['Fn::Join'][1][0]).toContain('{\"foo.key\":\"foo.value\"');
+    // console.log('DEBUG: ', values);
+    expect(values['Fn::Join'][1][8]).toContain('\"foo.key\":\"foo.value\"');
   });
 
   it('EC2NodeClass should fail invalid name with correct properties', () => {
