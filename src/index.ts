@@ -194,9 +194,8 @@ export class Karpenter extends Construct {
       namespace: this.namespace,
       version: this.version,
       createNamespace: false,
-      // We will merge our dyanmic `helmExtraValues` with the fixed values. Where the fixed values
-      // will override the dynamic values.
-      values: { ...this.helmExtraValues, ...this.helmChartValues },
+      // merge the two helm chart valeus objects, where the helmExtraValues object takes precedence.
+      values: { ...this.helmChartValues, ...this.helmExtraValues },
     });
     this.chart.node.addDependency(namespace);
   }
