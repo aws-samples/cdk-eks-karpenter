@@ -121,19 +121,12 @@ export class Karpenter extends Construct {
      * For the Karpenter controller to be able to talk to the AWS APIs, we need to set up a few
      * resources which will allow the Karpenter controller to use IAM Roles for Service Accounts
      */
-    const namespace = this.cluster.addManifest('karpenter-namespace', {
-      apiVersion: 'v1',
-      kind: 'Namespace',
-      metadata: {
-        name: this.namespace,
-      },
-    });
 
     this.serviceAccount = this.cluster.addServiceAccount('karpenter', {
       name: this.serviceAccountName,
       namespace: this.namespace,
     });
-    this.serviceAccount.node.addDependency(namespace);
+    
 
     // Setup the controller IAM Policy statements
     this.addControllerPolicyIAMPolicyStatements();
@@ -197,7 +190,23 @@ export class Karpenter extends Construct {
       // merge the two helm chart valeus objects, where the helmExtraValues object takes precedence.
       values: { ...this.helmChartValues, ...this.helmExtraValues },
     });
-    this.chart.node.addDependency(namespace);
+    
+
+    // If we are not installing it in the `kube-system` namespace:
+    // Note: We should be installing it in kube-system, please see: https://github.com/aws/karpenter-provider-aws/blob/fd2b60759f81dc0c868810cc44443103067c4880/website/content/en/v0.36/upgrading/upgrade-guide.md?plain=1#L91
+    // Also see https://github.com/aws-samples/cdk-eks-karpenter/issues/189 and https://github.com/aws-samples/cdk-eks-karpenter/issues/173
+    if (this.namespace != 'kube-system') {
+      const namespace = this.cluster.addManifest('karpenter-namespace', {
+        apiVersion: 'v1',
+        kind: 'Namespace',
+        metadata: {
+          name: this.namespace,
+        },
+      });
+      // If we are creating a namespace, we need to link it to the service account and the chart, so they are deployed in the correct order. 
+      this.serviceAccount.node.addDependency(namespace);
+      this.chart.node.addDependency(namespace);
+    }
   }
 
   /**
