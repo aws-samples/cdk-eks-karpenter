@@ -24,7 +24,8 @@ const cluster = new Cluster(this, 'testCluster', {
 });
 
 const karpenter = new Karpenter(this, 'Karpenter', {
-  cluster: cluster
+  cluster: cluster,
+  namespace: "kube-system"
 });
 ```
 
@@ -34,6 +35,9 @@ also need to create an [EC2NodeClass](https://karpenter.sh/docs/concepts/nodecla
 [test/integ.karpenter.ts](./test/integ.karpenter.ts).
 
 ## Known issues
+
+### It is now a best practice to install Karpenter into the kube-system namespace:
+Kapenter CRD webhooks have 'kube-system' hard-coded into them, and do not work in other namespaces (such as 'karpenter')
 
 ### Versions earlier than v0.6.1 fails to install
 
