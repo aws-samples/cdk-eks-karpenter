@@ -800,9 +800,9 @@
     undici-types "~5.26.4"
 
 "@types/node@^16":
-  version "16.18.60"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.60.tgz#0b0f4316906f1bd0e03b640363f67bd4e86958bd"
-  integrity sha512-ZUGPWx5vKfN+G2/yN7pcSNLkIkXEvlwNaJEd4e0ppX7W2S8XAkdc/37hM4OUNJB9sa0p12AOvGvxL4JCPiz9DA==
+  version "16.18.118"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.118.tgz#ec00e43ce642f38b2b9a87f4842cbd6f551b1e25"
+  integrity sha512-YgPbVGrf+mL4Qp8KTcd18OXfIsm1QYwHkldmWTNIR8aZH2EYSPNyLFFZHEXZIGYvYrwnW++xGoWyt4w279QDrQ==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.3"
