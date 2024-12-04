@@ -50,6 +50,26 @@
   resolved "https://registry.yarnpkg.com/@aws-cdk/lambda-layer-kubectl-v27/-/lambda-layer-kubectl-v27-2.1.0.tgz#f6b033208727cd331273a4c41daea963c2f6cf07"
   integrity sha512-2gXadkJSw1gDWO3ep0JhmFP99Ul5uUCJAEcROt/hnDTc0TMeUDa8qLrCwhmgOAM9xCXMwRcWomEGmK0fmr2vQg==
 
+"@aws-cdk/lambda-layer-kubectl-v28@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/lambda-layer-kubectl-v28/-/lambda-layer-kubectl-v28-2.2.0.tgz#0b16ac200ccc90aa29d0f3063e234ae7d26dfa4d"
+  integrity sha512-m7nMDn/Ff9S+gJ5Sok5NuYHBzgsj3Xz3dOo0BxXYJJNPl9UtD1HnPcKV56lHn9+BACJff/h8aPUMln0xCUPuIw==
+
+"@aws-cdk/lambda-layer-kubectl-v29@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/lambda-layer-kubectl-v29/-/lambda-layer-kubectl-v29-2.1.0.tgz#069b56f2a8e52109f9504e1b4240136c572df800"
+  integrity sha512-YwSyM3eNK5DiEY+5HWzVmkLzEMFSyTpsBSqki/kNePwH+UXP//Nmee2vMEIYxNFW6tpN3dx+B4gYNiJhBwGhKQ==
+
+"@aws-cdk/lambda-layer-kubectl-v30@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/lambda-layer-kubectl-v30/-/lambda-layer-kubectl-v30-2.0.1.tgz#2adbb8fc27f926596914f35ab3617622ca088066"
+  integrity sha512-R4N2OTq9jCxARAmrp2TBNRkVreVa01wgAC4GNRRfZ8C4UD5+Cz+vylIyyJsVPD7WWZpdBSWDidnVMpvwTpAsQQ==
+
+"@aws-cdk/lambda-layer-kubectl-v31@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/lambda-layer-kubectl-v31/-/lambda-layer-kubectl-v31-2.0.0.tgz#d87799d7d0d5dad77af45281a36942e4b7996b6b"
+  integrity sha512-8JI0sMDbqCubOyt1TbQFEwicYok9KYSrNSfzREgjGJcoPy17/Kd0gbe44ATyLMfjae7dExUhhwKMhr6GK7Hmrw==
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.22.13":
   version "7.22.13"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.22.13.tgz#e3c1c099402598483b7a8c46a721d1038803755e"

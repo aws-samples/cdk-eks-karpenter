@@ -230,7 +230,7 @@ export class Karpenter extends Construct {
     ]);
 
     return this.addManifest(id, {
-      apiVersion: 'karpenter.k8s.aws/v1beta1',
+      apiVersion: 'karpenter.k8s.aws/v1',
       kind: 'EC2NodeClass',
       metadata: {
         name: id,
@@ -258,7 +258,7 @@ export class Karpenter extends Construct {
     Utils.hasRequiredKeys(nodePoolSpec.template.spec, ['nodeClassRef', 'requirements']);
 
     return this.addManifest(id, {
-      apiVersion: 'karpenter.sh/v1beta1',
+      apiVersion: 'karpenter.sh/v1',
       kind: 'NodePool',
       metadata: {
         name: id,
