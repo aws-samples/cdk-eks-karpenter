@@ -17,6 +17,22 @@
       "type": "build"
     },
     {
+      "name": "@aws-cdk/lambda-layer-kubectl-v28",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/lambda-layer-kubectl-v29",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/lambda-layer-kubectl-v30",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/lambda-layer-kubectl-v31",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "version": "^27",
       "type": "build"
