@@ -126,7 +126,7 @@ export class Karpenter extends Construct {
       name: this.serviceAccountName,
       namespace: this.namespace,
     });
-    
+
 
     // Setup the controller IAM Policy statements
     this.addControllerPolicyIAMPolicyStatements();
@@ -191,7 +191,7 @@ export class Karpenter extends Construct {
       // will override the dynamic values.
       values: { ...this.helmExtraValues, ...this.helmChartValues },
     });
-    
+
 
     // If we are not installing it in the `kube-system` namespace:
     // Note: We should be installing it in kube-system, please see: https://github.com/aws/karpenter-provider-aws/blob/fd2b60759f81dc0c868810cc44443103067c4880/website/content/en/v0.36/upgrading/upgrade-guide.md?plain=1#L91
@@ -204,7 +204,7 @@ export class Karpenter extends Construct {
           name: this.namespace,
         },
       });
-      // If we are creating a namespace, we need to link it to the service account and the chart, so they are deployed in the correct order. 
+      // If we are creating a namespace, we need to link it to the service account and the chart, so they are deployed in the correct order.
       this.serviceAccount.node.addDependency(namespace);
       this.chart.node.addDependency(namespace);
     }
