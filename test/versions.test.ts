@@ -114,7 +114,7 @@ describe('Karpenter Versions', () => {
     ).toThrowError();
   });
 
-  it('should allow for creation of v1beta1 APIs', () => {
+  it('should allow for creation of v1 APIs', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test-stack');
 
@@ -139,7 +139,7 @@ describe('Karpenter Versions', () => {
       template: {
         spec: {
           nodeClassRef: {
-            apiVersion: 'karpenter.k8s.aws/v1beta1',
+            apiVersion: 'karpenter.k8s.aws/v1',
             kind: 'EC2NodeClass',
             name: nodeClass.name,
           },
@@ -162,7 +162,7 @@ describe('Karpenter Versions', () => {
         'Fn::Join': [
           '',
           Match.arrayWith([
-            Match.stringLikeRegexp('\"apiVersion\":\"karpenter.k8s.aws\/v1beta1\",\"kind\":\"EC2NodeClass\",\"metadata\":{\"name\":\"ec2nodeclass\",\"namespace\":\"karpenter\"'),
+            Match.stringLikeRegexp('\"apiVersion\":\"karpenter.k8s.aws\/v1\",\"kind\":\"EC2NodeClass\",\"metadata\":{\"name\":\"ec2nodeclass\",\"namespace\":\"karpenter\"'),
           ]),
         ],
       }),
@@ -170,7 +170,7 @@ describe('Karpenter Versions', () => {
 
     // NodePool manifest
     t.hasResourceProperties('Custom::AWSCDK-EKS-KubernetesResource', Match.objectLike({
-      Manifest: Match.stringLikeRegexp('\"apiVersion\":\"karpenter.sh\/v1beta1\",\"kind\":\"NodePool\",\"metadata\":{\"name\":\"nodepool\",\"namespace\":\"karpenter\"'),
+      Manifest: Match.stringLikeRegexp('\"apiVersion\":\"karpenter.sh\/v1\",\"kind\":\"NodePool\",\"metadata\":{\"name\":\"nodepool\",\"namespace\":\"karpenter\"'),
     }));
   });
 
