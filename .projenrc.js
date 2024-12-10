@@ -17,6 +17,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-cdk/lambda-layer-kubectl-v25',
     '@aws-cdk/lambda-layer-kubectl-v26',
     '@aws-cdk/lambda-layer-kubectl-v27',
+    '@aws-cdk/lambda-layer-kubectl-v28',
+    '@aws-cdk/lambda-layer-kubectl-v29',
+    '@aws-cdk/lambda-layer-kubectl-v30',
+    '@aws-cdk/lambda-layer-kubectl-v31',
   ],
   bundledDeps: [
     'semver',
