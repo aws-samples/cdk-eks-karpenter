@@ -63,6 +63,7 @@ project.addTask('test:synth', {
   exec: 'npx cdk synth -a "npx ts-node -P tsconfig.dev.json --prefer-ts-exts test/integ.karpenter.ts"',
 });
 
-project.github.actions.set('actions/download-artifact', 'actions/download-artifact@v4.1.7');
+project.github.actions.set('actions/download-artifact', 'actions/download-artifact@v4.4.3');
+project.github.actions.set('actions/upload-artifact', 'actions/upload-artifact@v4.4.3');
 
 project.synth();
