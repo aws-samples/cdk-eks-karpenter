@@ -68,10 +68,10 @@ project.github.actions.set('actions/upload-artifact', 'actions/upload-artifact@v
 
 // https://github.com/actions/upload-artifact/issues/602
 build_workflow = project.tryFindObjectFile('.github/workflows/build.yml');
-build_workflow.patch(JsonPatch.add('/jobs/build/steps/5/with/include-hidden-files', true))
-build_workflow.patch(JsonPatch.add('/jobs/build/steps/8/with/include-hidden-files', true))
+build_workflow.patch(JsonPatch.add('/jobs/build/steps/5/with/include-hidden-files', true));
+build_workflow.patch(JsonPatch.add('/jobs/build/steps/8/with/include-hidden-files', true));
 
 release_workflow = project.tryFindObjectFile('.github/workflows/release.yml');
-release_workflow.patch(JsonPatch.add('/jobs/release/steps/7/with/include-hidden-files', true))
+release_workflow.patch(JsonPatch.add('/jobs/release/steps/7/with/include-hidden-files', true));
 
 project.synth();
