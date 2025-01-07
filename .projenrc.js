@@ -1,4 +1,4 @@
-const { awscdk } = require('projen');
+const { awscdk, JsonPatch } = require('projen');
 const { DependabotScheduleInterval } = require('projen/lib/github');
 
 const PROJECT_NAME = 'cdk-eks-karpenter';
@@ -62,5 +62,16 @@ project.addTask('test:destroy', {
 project.addTask('test:synth', {
   exec: 'npx cdk synth -a "npx ts-node -P tsconfig.dev.json --prefer-ts-exts test/integ.karpenter.ts"',
 });
+
+project.github.actions.set('actions/download-artifact', 'actions/download-artifact@v4.1.8');
+project.github.actions.set('actions/upload-artifact', 'actions/upload-artifact@v4.4.3');
+
+// https://github.com/actions/upload-artifact/issues/602
+build_workflow = project.tryFindObjectFile('.github/workflows/build.yml');
+build_workflow.patch(JsonPatch.add('/jobs/build/steps/5/with/include-hidden-files', true));
+build_workflow.patch(JsonPatch.add('/jobs/build/steps/8/with/include-hidden-files', true));
+
+release_workflow = project.tryFindObjectFile('.github/workflows/release.yml');
+release_workflow.patch(JsonPatch.add('/jobs/release/steps/7/with/include-hidden-files', true));
 
 project.synth();
