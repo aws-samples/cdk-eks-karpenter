@@ -1,7 +1,7 @@
-import { KubectlV27Layer } from '@aws-cdk/lambda-layer-kubectl-v27';
+import { KubectlV31Layer } from '@aws-cdk/lambda-layer-kubectl-v31';
 import { App, CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
-import { Cluster, CoreDnsComputeType, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
+import { AuthenticationMode, Cluster, CoreDnsComputeType, KubernetesVersion } from 'aws-cdk-lib/aws-eks';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
@@ -26,10 +26,11 @@ class TestEKSStack extends Stack {
     const cluster = new Cluster(this, 'testCluster', {
       vpc: vpc,
       role: clusterRole,
-      version: KubernetesVersion.V1_27, // OCI HELM repo only supported by new version.
+      version: KubernetesVersion.V1_31, // OCI HELM repo only supported by new version.
       defaultCapacity: 0,
       coreDnsComputeType: CoreDnsComputeType.FARGATE,
-      kubectlLayer: new KubectlV27Layer(this, 'KubectlLayer'), // new Kubectl lambda layer
+      kubectlLayer: new KubectlV31Layer(this, 'KubectlLayer'), // new Kubectl lambda layer
+      authenticationMode: AuthenticationMode.API_AND_CONFIG_MAP,
     });
 
     cluster.addFargateProfile('karpenter', {
@@ -48,7 +49,7 @@ class TestEKSStack extends Stack {
 
     const karpenter = new Karpenter(this, 'Karpenter', {
       cluster: cluster,
-      version: 'v0.32.0', // test the newest version
+      version: '1.1.1', // test a recent version
       helmExtraValues: {
         settings: {
           featureGates: {
@@ -59,7 +60,12 @@ class TestEKSStack extends Stack {
     });
 
     const nodeClass = karpenter.addEC2NodeClass('nodeclass', {
-      amiFamily: 'AL2',
+      amiFamily: 'Bottlerocket',
+      amiSelectorTerms: [
+        {
+          alias: 'bottlerocket@latest',
+        },
+      ],
       subnetSelectorTerms: [
         {
           tags: {
@@ -81,7 +87,7 @@ class TestEKSStack extends Stack {
       template: {
         spec: {
           nodeClassRef: {
-            apiVersion: 'karpenter.k8s.aws/v1beta1',
+            group: 'karpenter.k8s.aws',
             kind: 'EC2NodeClass',
             name: nodeClass.name,
           },
