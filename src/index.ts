@@ -106,7 +106,6 @@ export class Karpenter extends Construct {
 
     const instanceProfile = new CfnInstanceProfile(this, 'InstanceProfile', {
       roles: [this.nodeRole.roleName],
-      instanceProfileName: `${this.cluster.clusterName}-${id}`, // Must be specified to avoid CFN error
     });
 
     this.cluster.awsAuth.addRoleMapping(this.nodeRole, {
