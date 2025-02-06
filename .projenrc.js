@@ -45,6 +45,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
 });
 
+// Patch dependabot configuration to file pull requests against develop branch instead
+dependabot_cfg = project.tryFindObjectFile('.github/dependabot.yml');
+dependabot_cfg.patch(JsonPatch.add('/updates/0/target-branch', 'develop'));
+
 const common_excludes = [
   'cdk.out/',
   'cdk.context.json',
