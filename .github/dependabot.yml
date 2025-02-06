@@ -9,3 +9,4 @@ updates:
       interval: monthly
     ignore:
       - dependency-name: projen
+    target-branch: develop
