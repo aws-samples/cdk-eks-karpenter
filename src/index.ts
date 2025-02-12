@@ -457,243 +457,186 @@ export class Karpenter extends Construct {
    * taken from https://raw.githubusercontent.com/aws/karpenter/v0.32.0/website/content/en/preview/getting-started/getting-started-with-karpenter/cloudformation.yaml
    */
   private addControllerPolicyIAMPolicyStatements(): void {
-    const AllowScopedInstanceProfileTagActions = new CfnJson(this, 'AllowScopedInstanceProfileTagActions', {
-      value: {
-        [`aws:ResourceTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
-        [`aws:RequestTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
-        'aws:ResourceTag/topology.kubernetes.io/region': `${Aws.REGION}`,
-        'aws:RequestTag/topology.kubernetes.io/region': `${Aws.REGION}`,
-      },
-    });
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowScopedInstanceProfileTagActions',
-      resources: ['*'],
-      actions: [
-        'iam:TagInstanceProfile',
-      ],
-      conditions: {
-        StringEquals: AllowScopedInstanceProfileTagActions,
-        StringLike: {
-          'aws:ResourceTag/karpenter.k8s.aws/ec2nodeclass': '*',
-          'aws:RequestTag/karpenter.k8s.aws/ec2nodeclass': '*',
-        },
-      },
-    }));
+    const clusterName = this.cluster.clusterName;
+    const region = Aws.REGION;
+    const partition = Aws.PARTITION;
+    const accountId = Aws.ACCOUNT_ID;
 
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowScopedEC2InstanceActions',
-      actions: [
-        'ec2:RunInstances',
-        'ec2:CreateFleet',
-      ],
-      resources: [
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}::image/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}::snapshot/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:security-group/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:subnet/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
-      ],
-    }));
+    const conditionCfnJson = (id: string, value: Record<string, any>) => new CfnJson(this, id, { value: value });
 
-    const AllowScopedEC2InstanceActionsWithTags = new CfnJson(this, 'AllowScopedEC2InstanceActionsWithTags', {
-      value: {
-        [`aws:RequestTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
-      },
-    });
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowScopedEC2InstanceActionsWithTags',
-      resources: [
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:fleet/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:instance/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:volume/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:network-interface/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:spot-instances-request/*`,
-      ],
-      actions: [
-        'ec2:RunInstances',
-        'ec2:CreateFleet',
-        'ec2:CreateLaunchTemplate',
-      ],
-      conditions: {
-        StringEquals: AllowScopedEC2InstanceActionsWithTags,
-        StringLike: {
-          'aws:RequestTag/karpenter.sh/nodepool': '*',
-        },
-      },
-    }));
-
-    const AllowScopedResourceCreationTagging = new CfnJson(this, 'AllowScopedResourceCreationTagging', {
-      value: {
-        [`aws:RequestTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
-        'ec2:CreateAction': [
-          'RunInstances',
-          'CreateFleet',
-          'CreateLaunchTemplate',
+    this.controllerIAMPolicyStatements.push(
+      new PolicyStatement({
+        sid: 'AllowScopedEC2InstanceAccessActions',
+        resources: [
+          `arn:${partition}:ec2:${region}::image/*`,
+          `arn:${partition}:ec2:${region}::snapshot/*`,
+          `arn:${partition}:ec2:${region}:*:security-group/*`,
+          `arn:${partition}:ec2:${region}:*:subnet/*`,
         ],
-      },
-    });
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowScopedResourceCreationTagging',
-      resources: [
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:fleet/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:instance/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:volume/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:network-interface/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:spot-instances-request/*`,
-      ],
-      actions: ['ec2:CreateTags'],
-      conditions: {
-        StringEquals: AllowScopedResourceCreationTagging,
-        StringLike: {
-          'aws:RequestTag/karpenter.sh/nodepool': '*',
+        actions: ['ec2:RunInstances', 'ec2:CreateFleet'],
+      }),
+      new PolicyStatement({
+        sid: 'AllowScopedEC2LaunchTemplateAccessActions',
+        resources: [`arn:${partition}:ec2:${region}:*:launch-template/*`],
+        actions: ['ec2:RunInstances', 'ec2:CreateFleet'],
+        conditions: {
+          StringEquals: conditionCfnJson('AllowScopedEC2InstanceAccessActions-ResourceTagClusterName', {
+            [`aws:ResourceTag/kubernetes.io/cluster/${clusterName}`]: 'owned',
+          }),
+          StringLike: conditionCfnJson('AllowScopedEC2InstanceAccessActions-ResourceTagNodePool', {
+            'aws:ResourceTag/karpenter.sh/nodepool': '*',
+          }),
         },
-      },
-    }));
-
-    const AllowScopedResourceTagging = new CfnJson(this, 'AllowScopedResourceTagging', {
-      value: {
-        [`aws:ResourceTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
-      },
-    });
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowScopedResourceTagging',
-      resources: [`arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:instance/*`],
-      actions: ['ec2:CreateTags'],
-      conditions: {
-        'StringEquals': AllowScopedResourceTagging,
-        'StringLike': {
-          'aws:ResourceTag/karpenter.sh/nodepool': '*',
+      }),
+      new PolicyStatement({
+        sid: 'AllowScopedEC2InstanceActionsWithTags',
+        resources: [
+          `arn:${partition}:ec2:${region}:*:fleet/*`,
+          `arn:${partition}:ec2:${region}:*:instance/*`,
+          `arn:${partition}:ec2:${region}:*:volume/*`,
+          `arn:${partition}:ec2:${region}:*:network-interface/*`,
+          `arn:${partition}:ec2:${region}:*:launch-template/*`,
+          `arn:${partition}:ec2:${region}:*:spot-instances-request/*`,
+        ],
+        actions: ['ec2:RunInstances', 'ec2:CreateFleet', 'ec2:CreateLaunchTemplate'],
+        conditions: {
+          StringEquals: conditionCfnJson('AllowScopedEC2InstanceActionsWithTags-1', {
+            [`aws:RequestTag/kubernetes.io/cluster/${clusterName}`]: 'owned',
+            'aws:RequestTag/eks:eks-cluster-name': clusterName,
+          }),
+          StringLike: conditionCfnJson('AllowScopedEC2InstanceActionsWithTags-2', {
+            'aws:RequestTag/karpenter.sh/nodepool': '*',
+          }),
         },
-        'ForAllValues:StringEquals': {
-          'aws:TagKeys': [
-            'karpenter.sh/nodeclaim',
-            'Name',
-          ],
+      }),
+      new PolicyStatement({
+        sid: 'AllowScopedResourceCreationTagging',
+        resources: [
+          `arn:${partition}:ec2:${region}:*:fleet/*`,
+          `arn:${partition}:ec2:${region}:*:instance/*`,
+          `arn:${partition}:ec2:${region}:*:volume/*`,
+          `arn:${partition}:ec2:${region}:*:network-interface/*`,
+          `arn:${partition}:ec2:${region}:*:launch-template/*`,
+          `arn:${partition}:ec2:${region}:*:spot-instances-request/*`,
+        ],
+        actions: ['ec2:CreateTags'],
+        conditions: {
+          StringEquals: conditionCfnJson('AllowScopedResourceCreationTagging-1', {
+            [`aws:RequestTag/kubernetes.io/cluster/${clusterName}`]: 'owned',
+            'aws:RequestTag/eks:eks-cluster-name': clusterName,
+            'ec2:CreateAction': ['RunInstances', 'CreateFleet', 'CreateLaunchTemplate'],
+          }),
+          StringLike: conditionCfnJson('AllowScopedResourceCreationTagging-2', {
+            'aws:RequestTag/karpenter.sh/nodepool': '*',
+          }),
         },
-      },
-    }));
-
-    const AllowScopedDeletion = new CfnJson(this, 'AllowScopedDeletion', {
-      value: {
-        [`aws:ResourceTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
-      },
-    });
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowScopedDeletion',
-      resources: [
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:instance/*`,
-        `arn:${Aws.PARTITION}:ec2:${Aws.REGION}:*:launch-template/*`,
-      ],
-      actions: [
-        'ec2:TerminateInstances',
-        'ec2:DeleteLaunchTemplate',
-      ],
-      conditions: {
-        StringEquals: AllowScopedDeletion,
-        StringLike: {
-          'aws:ResourceTag/karpenter.sh/nodepool': '*',
+      }),
+      new PolicyStatement({
+        sid: 'AllowScopedResourceTagging',
+        resources: [`arn:${partition}:ec2:${region}:*:instance/*`],
+        actions: ['ec2:CreateTags'],
+        conditions: {
+          'StringEquals': conditionCfnJson('AllowScopedResourceTagging-1', {
+            [`aws:ResourceTag/kubernetes.io/cluster/${clusterName}`]: 'owned',
+          }),
+          'StringLike': conditionCfnJson('AllowScopedResourceTagging-2', {
+            'aws:ResourceTag/karpenter.sh/nodepool': '*',
+          }),
+          'StringEqualsIfExists': conditionCfnJson('AllowScopedResourceTagging-3', {
+            'aws:RequestTag/eks:eks-cluster-name': clusterName,
+          }),
+          'ForAllValues:StringEquals': conditionCfnJson('AllowScopedResourceTagging-4', {
+            'aws:TagKeys': ['eks:eks-cluster-name', 'karpenter.sh/nodeclaim', 'Name'],
+          }),
         },
-      },
-    }));
-
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowRegionalReadActions',
-      resources: ['*'],
-      actions: [
-        'ec2:DescribeAvailabilityZones',
-        'ec2:DescribeImages',
-        'ec2:DescribeInstances',
-        'ec2:DescribeInstanceTypeOfferings',
-        'ec2:DescribeInstanceTypes',
-        'ec2:DescribeLaunchTemplates',
-        'ec2:DescribeSecurityGroups',
-        'ec2:DescribeSpotPriceHistory',
-        'ec2:DescribeSubnets',
-      ],
-      conditions: {
-        StringEquals: {
-          'aws:RequestedRegion': `${Aws.REGION}`,
+      }),
+      new PolicyStatement({
+        sid: 'AllowScopedDeletion',
+        resources: [
+          `arn:${partition}:ec2:${region}:*:instance/*`,
+          `arn:${partition}:ec2:${region}:*:launch-template/*`,
+        ],
+        actions: ['ec2:TerminateInstances', 'ec2:DeleteLaunchTemplate'],
+        conditions: {
+          StringEquals: conditionCfnJson('AllowScopedDeletion-1', {
+            [`aws:ResourceTag/kubernetes.io/cluster/${clusterName}`]: 'owned',
+          }),
+          StringLike: conditionCfnJson('AllowScopedDeletion-2', {
+            'aws:ResourceTag/karpenter.sh/nodepool': '*',
+          }),
         },
-      },
-    }));
-
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowSSMReadActions',
-      resources: [`arn:${Aws.PARTITION}:ssm:${Aws.REGION}::parameter/aws/service/*`],
-      actions: ['ssm:GetParameter'],
-    }));
-
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowPricingReadActions',
-      resources: ['*'],
-      actions: ['pricing:GetProducts'],
-    }));
-
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowPassingInstanceRole',
-      resources: [this.nodeRole.roleArn],
-      actions: ['iam:PassRole'],
-      conditions: {
-        StringEquals: {
-          'iam:PassedToService': 'ec2.amazonaws.com',
+      }),
+      new PolicyStatement({
+        sid: 'AllowRegionalReadActions',
+        resources: ['*'],
+        actions: [
+          'ec2:DescribeImages',
+          'ec2:DescribeInstances',
+          'ec2:DescribeInstanceTypeOfferings',
+          'ec2:DescribeInstanceTypes',
+          'ec2:DescribeLaunchTemplates',
+          'ec2:DescribeSecurityGroups',
+          'ec2:DescribeSpotPriceHistory',
+          'ec2:DescribeSubnets',
+        ],
+        conditions: {
+          StringEquals: {
+            'aws:RequestedRegion': region,
+          },
         },
-      },
-    }));
-
-    const AllowScopedInstanceProfileCreationActions = new CfnJson(this, 'AllowScopedInstanceProfileCreationActions', {
-      value: {
-        [`aws:RequestTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
-        'aws:RequestTag/topology.kubernetes.io/region': `${Aws.REGION}`,
-      },
-    });
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowScopedInstanceProfileCreationActions',
-      resources: ['*'],
-      actions: [
-        'iam:CreateInstanceProfile',
-      ],
-      conditions: {
-        StringEquals: AllowScopedInstanceProfileCreationActions,
-        StringLike: {
-          'aws:RequestTag/karpenter.k8s.aws/ec2nodeclass': '*',
+      }),
+      new PolicyStatement({
+        sid: 'AllowSSMReadActions',
+        resources: [`arn:${partition}:ssm:${region}::parameter/aws/service/*`],
+        actions: ['ssm:GetParameter'],
+      }),
+      new PolicyStatement({
+        sid: 'AllowPricingReadActions',
+        resources: ['*'],
+        actions: ['pricing:GetProducts'],
+      }),
+      new PolicyStatement({
+        sid: 'AllowPassingInstanceRole',
+        resources: [this.nodeRole.roleArn],
+        actions: ['iam:PassRole'],
+        conditions: {
+          StringEquals: {
+            'iam:PassedToService': ['ec2.amazonaws.com', 'ec2.amazonaws.com.cn'],
+          },
         },
-      },
-    }));
-
-    const AllowScopedInstanceProfileActions = new CfnJson(this, 'AllowScopedInstanceProfileActions', {
-      value: {
-        [`aws:ResourceTag/kubernetes.io/cluster/${this.cluster.clusterName}`]: 'owned',
-        'aws:ResourceTag/topology.kubernetes.io/region': `${Aws.REGION}`,
-      },
-    });
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowScopedInstanceProfileActions',
-      resources: ['*'],
-      actions: [
-        'iam:AddRoleToInstanceProfile',
-        'iam:RemoveRoleFromInstanceProfile',
-        'iam:DeleteInstanceProfile',
-      ],
-      conditions: {
-        StringEquals: AllowScopedInstanceProfileActions,
-        StringLike: {
-          'aws:ResourceTag/karpenter.k8s.aws/ec2nodeclass': '*',
+      }),
+      new PolicyStatement({
+        sid: 'AllowScopedInstanceProfileCreationActions',
+        resources: [`arn:${partition}:iam::${accountId}:instance-profile/*`],
+        actions: ['iam:CreateInstanceProfile'],
+        conditions: {
+          StringEquals: conditionCfnJson('AllowScopedInstanceProfileCreationActions-1', {
+            [`aws:RequestTag/kubernetes.io/cluster/${clusterName}`]: 'owned',
+            'aws:RequestTag/eks:eks-cluster-name': clusterName,
+            'aws:RequestTag/topology.kubernetes.io/region': region,
+          }),
+          StringLike: conditionCfnJson('AllowScopedInstanceProfileCreationActions-2', {
+            'aws:RequestTag/karpenter.k8s.aws/ec2nodeclass': '*',
+          }),
         },
-      },
-    }));
-
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowInstanceProfileReadActions',
-      resources: ['*'],
-      actions: ['iam:GetInstanceProfile'],
-    }));
-
-    this.controllerIAMPolicyStatements.push(new PolicyStatement({
-      sid: 'AllowAPIServerEndpointDiscovery',
-      resources: [`arn:${Aws.PARTITION}:eks:${Aws.REGION}:${Aws.ACCOUNT_ID}:cluster/${this.cluster.clusterName}`],
-      actions: ['eks:DescribeCluster'],
-    }));
+      }),
+      new PolicyStatement({
+        sid: 'AllowScopedInstanceProfileTagActions',
+        resources: [`arn:${partition}:iam::${accountId}:instance-profile/*`],
+        actions: ['iam:TagInstanceProfile'],
+        conditions: {
+          StringEquals: conditionCfnJson('AllowScopedInstanceProfileTagActions-1', {
+            [`aws:ResourceTag/kubernetes.io/cluster/${clusterName}`]: 'owned',
+            'aws:ResourceTag/topology.kubernetes.io/region': region,
+            [`aws:RequestTag/kubernetes.io/cluster/${clusterName}`]: 'owned',
+            'aws:RequestTag/eks:eks-cluster-name': clusterName,
+            'aws:RequestTag/topology.kubernetes.io/region': region,
+          }),
+          StringLike: conditionCfnJson('AllowScopedInstanceProfileTagActions-2', {
+            'aws:ResourceTag/karpenter.k8s.aws/ec2nodeclass': '*',
+            'aws:RequestTag/karpenter.k8s.aws/ec2nodeclass': '*',
+          }),
+        },
+      }));
   }
 }
