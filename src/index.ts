@@ -147,6 +147,7 @@ export class Karpenter extends Construct {
     }
     if (semver.gte(this.version, 'v0.32.0')) {
       this.helmChartValues.settings = {
+        ...this.helmExtraValues.settings,
         clusterName: this.cluster.clusterName,
         clusterEndpoint: this.cluster.clusterEndpoint,
         interruptionQueue: this.interruptionQueue?.queueName,
