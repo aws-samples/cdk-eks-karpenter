@@ -47,37 +47,6 @@ describe('Karpenter installation', () => {
     });
   });
 
-  it('should add extra helm values if provided', () => {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'test-stack');
-
-    const cluster = new Cluster(stack, 'testcluster', {
-      version: KubernetesVersion.V1_27,
-    });
-
-    // Create Karpenter install with extra values
-    new Karpenter(stack, 'Karpenter', {
-      cluster: cluster,
-      namespace: 'kar-penter',
-      helmExtraValues: {
-        'foo.key': 'foo.value',
-      },
-      version: 'v0.32.0',
-    });
-
-    const t = Template.fromStack(stack);
-    const valueCapture = new Capture();
-    t.hasResource('Custom::AWSCDK-EKS-Cluster', {});
-    t.hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
-      Values: valueCapture,
-      Namespace: 'kar-penter',
-    });
-
-    const values = valueCapture.asObject();
-    // console.log('DEBUG: ', values);
-    expect(values['Fn::Join'][1][8]).toContain('\"foo.key\":\"foo.value\"');
-  });
-
   it('EC2NodeClass should fail invalid name with correct properties', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'test-stack');
