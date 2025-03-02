@@ -64,9 +64,9 @@
   integrity sha512-m7nMDn/Ff9S+gJ5Sok5NuYHBzgsj3Xz3dOo0BxXYJJNPl9UtD1HnPcKV56lHn9+BACJff/h8aPUMln0xCUPuIw==
 
 "@aws-cdk/lambda-layer-kubectl-v29@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/lambda-layer-kubectl-v29/-/lambda-layer-kubectl-v29-2.1.0.tgz#069b56f2a8e52109f9504e1b4240136c572df800"
-  integrity sha512-YwSyM3eNK5DiEY+5HWzVmkLzEMFSyTpsBSqki/kNePwH+UXP//Nmee2vMEIYxNFW6tpN3dx+B4gYNiJhBwGhKQ==
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/lambda-layer-kubectl-v29/-/lambda-layer-kubectl-v29-2.1.1.tgz#8160f2a6658d3c6832f5bfa0d81184bfe9cd776b"
+  integrity sha512-6CChfYXbV8jDIEhUrF2oxXUJPYjXRjt4d6D3Tck9z9wd1jN17juOHTetompVJCDYWfqrXYWT2gK8PEc9pqJojg==
 
 "@aws-cdk/lambda-layer-kubectl-v30@^2.0.1":
   version "2.0.4"
