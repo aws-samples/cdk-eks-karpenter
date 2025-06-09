@@ -13,14 +13,14 @@ const project = new awscdk.AwsCdkConstructLibrary({
   majorVersion: 1,
 
   devDeps: [
-    '@aws-cdk/lambda-layer-kubectl-v24',
-    '@aws-cdk/lambda-layer-kubectl-v25',
     '@aws-cdk/lambda-layer-kubectl-v26',
     '@aws-cdk/lambda-layer-kubectl-v27',
     '@aws-cdk/lambda-layer-kubectl-v28',
     '@aws-cdk/lambda-layer-kubectl-v29',
     '@aws-cdk/lambda-layer-kubectl-v30',
     '@aws-cdk/lambda-layer-kubectl-v31',
+    '@aws-cdk/lambda-layer-kubectl-v32',
+    '@aws-cdk/lambda-layer-kubectl-v33',
   ],
   bundledDeps: [
     'semver',
