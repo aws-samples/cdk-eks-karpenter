@@ -21,11 +21,13 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-cdk/lambda-layer-kubectl-v31',
     '@aws-cdk/lambda-layer-kubectl-v32',
     '@aws-cdk/lambda-layer-kubectl-v33',
+    '@types/semver',
   ],
   bundledDeps: [
     'semver',
   ],
   defaultReleaseBranch: 'main',
+  npmTrustedPublishing: true,
   name: PROJECT_NAME,
   repositoryUrl: 'https://github.com/aws-samples/cdk-eks-karpenter.git',
 
@@ -76,6 +78,6 @@ build_workflow.patch(JsonPatch.add('/jobs/build/steps/5/with/include-hidden-file
 build_workflow.patch(JsonPatch.add('/jobs/build/steps/8/with/include-hidden-files', true));
 
 release_workflow = project.tryFindObjectFile('.github/workflows/release.yml');
-release_workflow.patch(JsonPatch.add('/jobs/release/steps/7/with/include-hidden-files', true));
+release_workflow.patch(JsonPatch.add('/jobs/release/steps/8/with/include-hidden-files', true));
 
 project.synth();

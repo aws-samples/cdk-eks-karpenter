@@ -33,27 +33,35 @@
       "type": "build"
     },
     {
+      "name": "@stylistic/eslint-plugin",
+      "version": "^2",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
-      "version": "^27",
       "type": "build"
     },
     {
       "name": "@types/node",
-      "version": "^16",
+      "type": "build"
+    },
+    {
+      "name": "@types/semver",
       "type": "build"
     },
     {
       "name": "@typescript-eslint/eslint-plugin",
-      "version": "^6",
+      "version": "^8",
       "type": "build"
     },
     {
       "name": "@typescript-eslint/parser",
-      "version": "^6",
+      "version": "^8",
       "type": "build"
     },
     {
-      "name": "eslint-import-resolver-node",
+      "name": "commit-and-tag-version",
+      "version": "^12",
       "type": "build"
     },
     {
@@ -66,17 +74,16 @@
     },
     {
       "name": "eslint",
-      "version": "^8",
-      "type": "build"
-    },
-    {
-      "name": "jest-junit",
-      "version": "^15",
+      "version": "^9",
       "type": "build"
     },
     {
       "name": "jest",
-      "version": "^27",
+      "type": "build"
+    },
+    {
+      "name": "jest-junit",
+      "version": "^16",
       "type": "build"
     },
     {
@@ -85,6 +92,7 @@
     },
     {
       "name": "jsii-docgen",
+      "version": "^10.5.0",
       "type": "build"
     },
     {
@@ -93,12 +101,12 @@
     },
     {
       "name": "jsii-rosetta",
-      "version": "1.x",
+      "version": "~5.9.0",
       "type": "build"
     },
     {
       "name": "jsii",
-      "version": "1.x",
+      "version": "~5.9.0",
       "type": "build"
     },
     {
@@ -106,13 +114,7 @@
       "type": "build"
     },
     {
-      "name": "standard-version",
-      "version": "^9",
-      "type": "build"
-    },
-    {
       "name": "ts-jest",
-      "version": "^27",
       "type": "build"
     },
     {
@@ -124,23 +126,13 @@
       "type": "bundled"
     },
     {
-      "name": "@types/babel__traverse",
-      "version": "7.18.2",
-      "type": "override"
-    },
-    {
-      "name": "@types/prettier",
-      "version": "2.6.0",
-      "type": "override"
-    },
-    {
       "name": "aws-cdk-lib",
       "version": "^2.178.2",
       "type": "peer"
     },
     {
       "name": "constructs",
-      "version": "^10.0.5",
+      "version": "^10.5.1",
       "type": "peer"
     }
   ],
