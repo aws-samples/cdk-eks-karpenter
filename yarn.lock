@@ -74,9 +74,9 @@
   integrity sha512-a+zvCLapTg8R0P/Nrecc8mKV+ZgAwvkndn4/zlb43e14zRlc4/ozvmeghUT2eoyyaWJv+PwqgWohEXXec3kpSw==
 
 "@aws-cdk/lambda-layer-kubectl-v33@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/lambda-layer-kubectl-v33/-/lambda-layer-kubectl-v33-2.0.0.tgz#0c521ad987bb3ac597a4b4ebeece8fd2721ca000"
-  integrity sha512-osA3wkwWK2OfpymTcCZKhgaKSca9PQSr+7xi+UevKFRHtMdxHgygC345hdDpCtZlMmX9pKjtFpRUxeRrbGHMEw==
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/lambda-layer-kubectl-v33/-/lambda-layer-kubectl-v33-2.2.1.tgz#f7ac0f013ed56bbc92b8b4a6cd228436333cf1e7"
+  integrity sha512-+gztXQ4k+pZj+rLrOaJ52YOV9XRddmpaUTaC4oqtFZRAsycp9361D6a33HKlt/4q94wKBICqPMDhfKPrdGpyFg==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.22.13":
   version "7.22.13"
