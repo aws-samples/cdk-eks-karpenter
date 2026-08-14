@@ -245,6 +245,7 @@ Any object.
 | --- | --- | --- |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_eks.Cluster</code> | *No description.* |
+| <code><a href="#cdk-eks-karpenter.Karpenter.property.helmChartTimeout">helmChartTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.helmExtraValues">helmExtraValues</a></code> | <code>any</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.namespace">namespace</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#cdk-eks-karpenter.Karpenter.property.nodeRole">nodeRole</a></code> | <code>aws-cdk-lib.aws_iam.Role</code> | *No description.* |
@@ -273,6 +274,16 @@ public readonly cluster: Cluster;
 ```
 
 - *Type:* aws-cdk-lib.aws_eks.Cluster
+
+---
+
+##### `helmChartTimeout`<sup>Required</sup> <a name="helmChartTimeout" id="cdk-eks-karpenter.Karpenter.property.helmChartTimeout"></a>
+
+```typescript
+public readonly helmChartTimeout: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
 
 ---
 
@@ -355,6 +366,7 @@ const karpenterProps: KarpenterProps = { ... }
 | --- | --- | --- |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_eks.Cluster</code> | The EKS Cluster to attach to. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.version">version</a></code> | <code>string</code> | The helm chart version to install. |
+| <code><a href="#cdk-eks-karpenter.KarpenterProps.property.helmChartTimeout">helmChartTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | The timeout for installing the Karpenter Helm chart. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.helmExtraValues">helmExtraValues</a></code> | <code>{[ key: string ]: any}</code> | Extra values to pass to the Karpenter Helm chart. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.namespace">namespace</a></code> | <code>string</code> | The Kubernetes namespace to install to. |
 | <code><a href="#cdk-eks-karpenter.KarpenterProps.property.nodeRole">nodeRole</a></code> | <code>aws-cdk-lib.aws_iam.Role</code> | Custom NodeRole to pass for Karpenter Nodes. |
@@ -384,6 +396,19 @@ public readonly version: string;
 - *Default:* latest
 
 The helm chart version to install.
+
+---
+
+##### `helmChartTimeout`<sup>Optional</sup> <a name="helmChartTimeout" id="cdk-eks-karpenter.KarpenterProps.property.helmChartTimeout"></a>
+
+```typescript
+public readonly helmChartTimeout: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+- *Default:* Duration.minutes(5)
+
+The timeout for installing the Karpenter Helm chart.
 
 ---
 
