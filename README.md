@@ -45,6 +45,26 @@ As of [aws/karpenter#1145](https://github.com/aws/karpenter/pull/1145) the Karpe
 refactored to specify `clusterEndpoint` and `clusterName` on the root level of the chart values, previously
 these values was specified under the key `controller`.
 
+### Deployment fails with `context deadline exceeded`
+
+The chart is installed with `wait: true`, so the deploy blocks until Karpenter is ready. If that takes
+longer than the Helm timeout (default 5 minutes), it fails with `context deadline exceeded`. A slow
+upgrade, such as the CRD conversion when moving to v1
+([#197](https://github.com/aws-samples/cdk-eks-karpenter/issues/197)), can need more time, so raise it
+with `helmChartTimeout` (max 15 minutes):
+
+```typescript
+const karpenter = new Karpenter(this, 'Karpenter', {
+  cluster: cluster,
+  namespace: 'kube-system',
+  helmChartTimeout: Duration.minutes(15),
+});
+```
+
+If the pods can't be scheduled at all (no node for the controller to run on), a longer timeout won't
+help. Give Karpenter a node group or Fargate profile first (see
+[#173](https://github.com/aws-samples/cdk-eks-karpenter/issues/173)).
+
 ## Testing
 
 This construct adds a custom task to [projen](https://projen.io/), so you can test a full deployment

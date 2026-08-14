@@ -44,6 +44,13 @@ export interface KarpenterProps {
    * Custom NodeRole to pass for Karpenter Nodes
    */
   readonly nodeRole?: Role;
+
+  /**
+   * The timeout for installing the Karpenter Helm chart
+   *
+   * @default - Duration.minutes(5)
+   */
+  readonly helmChartTimeout?: Duration;
 }
 
 export class Karpenter extends Construct {
@@ -53,6 +60,7 @@ export class Karpenter extends Construct {
   public readonly version: string;
   public readonly nodeRole: Role;
   public readonly helmExtraValues: any;
+  public readonly helmChartTimeout: Duration;
 
   private readonly chart: HelmChart;
   private readonly serviceAccount: any;
@@ -68,6 +76,7 @@ export class Karpenter extends Construct {
     this.serviceAccountName = props.serviceAccountName ?? 'karpenter';
     this.version = props.version;
     this.helmExtraValues = props.helmExtraValues ?? {};
+    this.helmChartTimeout = props.helmChartTimeout ?? Duration.minutes(5);
 
     this.controllerIAMPolicyStatements = [];
     this.interruptionQueue = undefined;
@@ -180,6 +189,9 @@ export class Karpenter extends Construct {
       // This one is important, if we don't ask helm to wait for resources to become available, the
       // subsequent creation of karpenter resources will fail.
       wait: true,
+      // How long to wait for the `wait` above. Configurable so that slower
+      // upgrades don't hit `context deadline exceeded`.
+      timeout: this.helmChartTimeout,
       chart: 'karpenter',
       release: 'karpenter',
       repository: repoUrl,

@@ -280,4 +280,58 @@ describe('Karpenter installation', () => {
       }),
     ).toThrowError();
   });
+
+  it('should use a helm chart timeout of 5 minutes by default', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_27,
+    });
+
+    new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+      version: 'v0.32.0',
+    });
+
+    Template.fromStack(stack).hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
+      Timeout: '300s',
+    });
+  });
+
+  it('should set a custom helm chart timeout when provided', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_27,
+    });
+
+    new Karpenter(stack, 'Karpenter', {
+      cluster: cluster,
+      version: 'v0.32.0',
+      helmChartTimeout: cdk.Duration.minutes(15),
+    });
+
+    Template.fromStack(stack).hasResourceProperties('Custom::AWSCDK-EKS-HelmChart', {
+      Timeout: '900s',
+    });
+  });
+
+  it('should reject a helm chart timeout greater than 15 minutes', () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, 'test-stack');
+
+    const cluster = new Cluster(stack, 'testcluster', {
+      version: KubernetesVersion.V1_27,
+    });
+
+    expect(
+      () => new Karpenter(stack, 'Karpenter', {
+        cluster: cluster,
+        version: 'v0.32.0',
+        helmChartTimeout: cdk.Duration.minutes(16),
+      }),
+    ).toThrowError('Helm chart timeout cannot be higher than 15 minutes.');
+  });
 });
